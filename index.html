@@ -1,0 +1,2789 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Licitacao</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body class="route-boot">
+  <div id="app" class="app-shell"></div>
+
+  <template id="tpl-login">
+<main class="login-layout">
+    <section class="login-hero">
+      <div>
+        <span class="hero-tag">CONTROLE INTEGRADO</span>
+        <h1>ACESSO AOS SETORES DE LICITACAO</h1>
+        <p>
+          Entre com seu cadastro para acessar DIVACP, DIVCON, CPC, CEC, DIPREG ou a area administrativa.
+        </p>
+
+        <div class="hero-cards">
+          <article class="hero-card">
+            <strong>FLUXO UNIFICADO</strong>
+            <span>Um unico login para cada setor.</span>
+          </article>
+          <article class="hero-card">
+            <strong>ACESSO CONTROLADO</strong>
+            <span>Solicitacoes passam pela administracao.</span>
+          </article>
+          <article class="hero-card">
+            <strong>BASE COMPARTILHADA</strong>
+            <span>Os processos seguem conectados entre os setores.</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <div class="login-box">
+        <span class="login-kicker">ENTRAR NO SISTEMA</span>
+        <h2>Login</h2>
+        <p class="login-subtitulo">Se ainda nao tiver cadastro, use o botao de solicitar acesso.</p>
+
+        <form id="loginForm" class="login-form">
+          <label class="campo">
+            <span>E-MAIL</span>
+            <input type="email" id="loginEmail" placeholder="voce@setor.gov" required />
+          </label>
+
+          <label class="campo">
+            <span>SENHA</span>
+            <input type="password" id="loginSenha" placeholder="Informe sua senha" required />
+          </label>
+
+          <label class="campo">
+            <span>SETOR</span>
+            <select id="loginSetor" required>
+              <option value="">SELECIONE</option>
+              <option value="DIVACP">DIVACP</option>
+              <option value="DIVCON">DIVCON</option>
+              <option value="CPC">CPC</option>
+              <option value="CEC">CEC</option>
+              <option value="DIPREG">DIPREG</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </label>
+
+          <div class="login-acoes">
+            <button type="submit" class="btn-primario">ENTRAR</button>
+            <button type="button" class="btn-secundario" id="btnSolicitarAcesso">SOLICITAR ACESSO</button>
+          </div>
+        </form>
+
+        <div class="login-dica">
+          <strong>ACESSO INICIAL DO ADMIN</strong>
+          <span>E-mail: admin@licitacao.local</span>
+          <span>Senha: admin123</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modalSolicitacao">
+    <div class="modal-card">
+      <div class="modal-topo">
+        <div>
+          <span class="modal-kicker">NOVO ACESSO</span>
+          <h3>SOLICITAR ACESSO</h3>
+        </div>
+        <button type="button" class="btn-fechar" id="btnFecharSolicitacao">X</button>
+      </div>
+
+      <form id="solicitacaoForm" class="solicitacao-form">
+        <div class="grid-duplo">
+          <label class="campo">
+            <span>NOME COMPLETO</span>
+            <input type="text" id="solicitacaoNome" required />
+          </label>
+
+          <label class="campo">
+            <span>E-MAIL</span>
+            <input type="email" id="solicitacaoEmail" required />
+          </label>
+        </div>
+
+        <label class="campo">
+          <span>SETOR SOLICITADO</span>
+          <select id="solicitacaoSetor" required>
+            <option value="">SELECIONE</option>
+            <option value="DIVACP">DIVACP</option>
+            <option value="DIVCON">DIVCON</option>
+            <option value="CPC">CPC</option>
+            <option value="CEC">CEC</option>
+            <option value="DIPREG">DIPREG</option>
+          </select>
+        </label>
+
+        <div class="modal-acoes">
+          <button type="button" class="btn-secundario" id="btnCancelarSolicitacao">CANCELAR</button>
+          <button type="submit" class="btn-primario">ENVIAR SOLICITACAO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastLogin" class="toast"></div>
+  </template>
+
+  <template id="tpl-alterar-senha">
+<main class="login-layout">
+    <section class="login-hero">
+      <div>
+        <span class="hero-tag">PRIMEIRO ACESSO</span>
+        <h1>TROCA OBRIGATORIA DE SENHA</h1>
+        <p>
+          Sua senha atual e temporaria. Antes de entrar no setor, defina uma senha definitiva para continuar.
+        </p>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <div class="login-box">
+        <span class="login-kicker">SEGURANCA DE ACESSO</span>
+        <h2>Nova senha</h2>
+        <p class="login-subtitulo">Escolha uma senha definitiva para o seu setor autorizado.</p>
+
+        <form id="alterarSenhaForm" class="login-form">
+          <label class="campo">
+            <span>NOVA SENHA</span>
+            <input type="password" id="novaSenha" required />
+          </label>
+
+          <label class="campo">
+            <span>CONFIRMAR NOVA SENHA</span>
+            <input type="password" id="confirmarNovaSenha" required />
+          </label>
+
+          <div class="login-acoes">
+            <button type="submit" class="btn-primario">SALVAR SENHA DEFINITIVA</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastLogin" class="toast"></div>
+  </template>
+
+  <template id="tpl-admin">
+<div class="admin-shell">
+    <header class="admin-topo">
+      <div>
+        <span class="admin-tag">PAINEL ADMINISTRATIVO</span>
+        <h1>GESTAO DE ACESSOS</h1>
+        <p>Aprove solicitacoes, acompanhe usuarios e ajuste os setores de acesso do sistema.</p>
+      </div>
+
+      <div class="admin-usuario">
+        <div class="admin-usuario-box">
+          <small>LOGADO COMO</small>
+          <strong data-auth-nome>ADMINISTRADOR</strong>
+          <span data-auth-setor>ADMIN</span>
+        </div>
+        <button type="button" class="btn-sair-admin" id="btnSairAdmin">SAIR</button>
+      </div>
+    </header>
+
+    <section class="admin-cards">
+      <article class="admin-card">
+        <span>SOLICITACOES PENDENTES</span>
+        <strong id="cardSolicitacoes">0</strong>
+      </article>
+      <article class="admin-card">
+        <span>USUARIOS ATIVOS</span>
+        <strong id="cardUsuariosAtivos">0</strong>
+      </article>
+      <article class="admin-card">
+        <span>USUARIOS INATIVOS</span>
+        <strong id="cardUsuariosInativos">0</strong>
+      </article>
+      <article class="admin-card">
+        <span>SETORES COM ACESSO</span>
+        <strong id="cardSetores">0</strong>
+      </article>
+    </section>
+
+    <main class="admin-grid">
+      <section class="admin-painel">
+        <div class="painel-topo">
+          <div>
+            <span class="painel-tag">FILA DE ANALISE</span>
+            <h2>SOLICITACOES DE ACESSO</h2>
+          </div>
+        </div>
+
+        <div id="listaSolicitacoes" class="lista-admin"></div>
+      </section>
+
+      <section class="admin-painel">
+        <div class="painel-topo">
+          <div>
+            <span class="painel-tag">USUARIOS CADASTRADOS</span>
+            <h2>ACESSOS ATIVOS E INATIVOS</h2>
+          </div>
+        </div>
+
+        <div class="tabela-wrap">
+          <table class="tabela-admin">
+            <thead>
+              <tr>
+                <th>NOME</th>
+                <th>E-MAIL</th>
+                <th>SENHA</th>
+                <th>SETOR</th>
+                <th>PERFIL</th>
+                <th>STATUS</th>
+                <th>ACOES</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaUsuarios"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastAdmin" class="toast"></div>
+  </template>
+
+  <template id="tpl-divacp">
+<div class="container">
+    <div class="topo">
+      <div class="topo-perfil">
+        <button
+          type="button"
+          class="btn-perfil"
+          id="btnPerfil"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="menuPerfil"
+        >
+          <span class="icone-perfil" aria-hidden="true">
+            <span class="icone-perfil-cabeca"></span>
+            <span class="icone-perfil-corpo"></span>
+          </span>
+          <span class="btn-perfil-texto">
+            <strong>PERFIL</strong>
+            <small>DIVACP</small>
+          </span>
+          <span class="btn-perfil-seta" aria-hidden="true"></span>
+        </button>
+
+        <div class="menu-perfil" id="menuPerfil" role="menu" aria-labelledby="btnPerfil">
+          <div class="menu-perfil-cabecalho">
+            <span class="menu-perfil-legenda">ACESSO ATUAL</span>
+            <strong>SETOR DIVACP</strong>
+            <small>CONTROLE DE LICITAÃ‡ÃƒO</small>
+          </div>
+
+          <button type="button" class="menu-perfil-item" role="menuitem" data-acao-perfil="perfil">
+            VER PERFIL
+          </button>
+          <button type="button" class="menu-perfil-item" role="menuitem" data-acao-perfil="preferencias">
+            PREFERÃŠNCIAS
+          </button>
+          <button type="button" class="menu-perfil-item menu-perfil-item-destaque" role="menuitem" data-acao-perfil="sair">
+            SAIR
+          </button>
+        </div>
+      </div>
+
+      <h1>SISTEMA DE CONTROLE DE LICITAÃ‡ÃƒO - DIVACP</h1>
+      <p>
+        MODELO INICIAL DO SETOR DIVACP PARA ACOMPANHAMENTO DE PROCESSOS DE LICITAÃ‡ÃƒO.
+      </p>
+
+      <div id="cardsAndamento" class="cards cards-dinamicos ativo">
+        <div class="card">
+          <h3>PROCESSOS ATIVOS</h3>
+          <span id="ativos">0</span>
+        </div>
+        <div class="card">
+          <h3>ENCAMINHADOS</h3>
+          <span id="encaminhados">0</span>
+        </div>
+        <div class="card">
+          <h3>PENDÃŠNCIAS</h3>
+          <span id="pendencias">0</span>
+        </div>
+        <div class="card">
+          <h3>TOTAL CADASTRADO</h3>
+          <span id="total">0</span>
+        </div>
+      </div>
+
+      <div id="cardsAgenda" class="cards cards-dinamicos">
+        <div class="card card-agenda card-agenda-hoje">
+          <h3>LICITAÃ‡Ã•ES DE HOJE</h3>
+          <span id="agendaHoje">0</span>
+        </div>
+        <div class="card card-agenda card-agenda-amanha">
+          <h3>LICITAÃ‡Ã•ES DE AMANHÃƒ</h3>
+          <span id="agendaAmanha">0</span>
+        </div>
+        <div class="card card-agenda card-agenda-depois">
+          <h3>LICITAÃ‡Ã•ES DE DEPOIS DE AMANHÃƒ</h3>
+          <span id="agendaDepoisAmanha">0</span>
+        </div>
+      </div>
+
+      <div id="cardsNrLicitatorios" class="cards cards-dinamicos">
+        <div class="card card-licitatorio">
+          <h3>COM NR DEFINIDO</h3>
+          <span id="licitatorioDefinido">0</span>
+        </div>
+        <div class="card card-licitatorio">
+          <h3>PROVISÃ“RIOS (XXX)</h3>
+          <span id="licitatorioProvisorio">0</span>
+        </div>
+        <div class="card card-licitatorio">
+          <h3>TOTAL</h3>
+          <span id="licitatorioTotal">0</span>
+        </div>
+      </div>
+
+      <div id="cardsResumo" class="cards cards-dinamicos">
+        <div class="card card-resumo">
+          <h3>ANDAMENTO</h3>
+          <span id="resumoAndamento">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>AGUARDANDO ABERTURA</h3>
+          <span id="resumoAguardandoAbertura">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>RECURSO</h3>
+          <span id="resumoRecurso">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>SUSPENSÃƒO</h3>
+          <span id="resumoSuspensao">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>SUSPENSO</h3>
+          <span id="resumoSuspenso">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>IMPUGNAÃ‡ÃƒO / ESCLARECIMENTO</h3>
+          <span id="resumoImpugnacao">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>SUSPENSO PARA PARECER</h3>
+          <span id="resumoParecer">0</span>
+        </div>
+        <div class="card card-resumo">
+          <h3>FINALIZADOS</h3>
+          <span id="resumoFinalizados">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="abas-externas">
+      <button type="button" class="aba-btn aba-andamento ativa" id="abaAndamento" onclick="mostrarAba('andamento')">
+        ANDAMENTO
+      </button>
+      <button type="button" class="aba-btn aba-agenda" id="abaAgenda" onclick="mostrarAba('agenda')">
+        AGENDA
+      </button>
+      <button type="button" class="aba-btn aba-licitatorio" id="abaNrLicitatorios" onclick="mostrarAba('nrLicitatorios')">
+        NR LICITATÃ“RIOS
+      </button>
+      <button type="button" class="aba-btn aba-resumo" id="abaResumo" onclick="mostrarAba('resumo')">
+        RESUMO
+      </button>
+    </div>
+
+    <div class="painel painel-unico">
+      <div id="topoAndamento" class="painel-topo topo-acao ativo-topo">
+        <div>
+          <h2>PAINEL DE PROCESSOS - DIVACP</h2>
+          <p class="texto-selecao" id="textoSelecao">NENHUM PROCESSO SELECIONADO</p>
+        </div>
+
+        <div class="barra-acoes-superior">
+          <button type="button" class="btn-topo btn-principal" onclick="abrirModalCadastro()">
+            NOVO PROCESSO
+          </button>
+          <button type="button" class="btn-topo" id="btnVer" onclick="acaoVerSelecionado()" disabled>
+            VER
+          </button>
+          <button type="button" class="btn-topo" id="btnEditar" onclick="acaoEditarSelecionado()" disabled>
+            EDITAR
+          </button>
+          <button type="button" class="btn-topo btn-enviar-superior" id="btnEnviar" onclick="acaoEnviarSelecionados()" disabled>
+            ENVIAR
+          </button>
+          <button type="button" class="btn-topo btn-excluir-superior" id="btnExcluir" onclick="acaoExcluirSelecionados()" disabled>
+            EXCLUIR
+          </button>
+          <button type="button" class="btn-topo btn-pdf" onclick="exportarPdf('andamento')">
+            EXPORTAR PDF
+          </button>
+        </div>
+      </div>
+
+      <div id="topoAgenda" class="painel-topo topo-acao">
+        <div>
+          <h2>AGENDA DE PROCESSOS - DIVACP</h2>
+          <p class="texto-selecao">VISUALIZAÃ‡ÃƒO EM FORMATO DE PLANILHA COM BASE NA DATA DE ABERTURA</p>
+        </div>
+
+        <div class="barra-acoes-superior">
+          <button type="button" class="btn-topo btn-pdf" onclick="exportarPdf('agenda')">
+            EXPORTAR PDF
+          </button>
+        </div>
+      </div>
+
+      <div id="topoNrLicitatorios" class="topo-licitatorio">
+        <div class="licitatorio-faixa-botoes">
+          <button type="button" class="btn-licitatorio ativo" onclick="selecionarTipoLicitatorio('PREGÃƒO', this)">
+            PREGÃƒO
+          </button>
+          <button type="button" class="btn-licitatorio" onclick="selecionarTipoLicitatorio('CONCORRÃŠNCIA', this)">
+            CONCORRÃŠNCIA
+          </button>
+          <button type="button" class="btn-licitatorio" onclick="selecionarTipoLicitatorio('CHAMAMENTO PÃšBLICO', this)">
+            CHAMAMENTO PÃšBLICO
+          </button>
+          <button type="button" class="btn-licitatorio" onclick="selecionarTipoLicitatorio('SELEÃ‡ÃƒO DE FORNECEDORES', this)">
+            SELEÃ‡ÃƒO DE FORNECEDORES
+          </button>
+        </div>
+
+        <div class="gerador-box">
+          <div class="gerador-campos">
+            <div class="campo-formulario">
+              <label for="buscaNrSei">NR. SEI</label>
+              <input type="text" id="buscaNrSei" placeholder="INFORME O NR. SEI" />
+            </div>
+
+            <div class="campo-formulario campo-botoes-gerador">
+              <label>&nbsp;</label>
+              <div class="linha-botoes-gerador">
+                <button type="button" class="btn-busca" onclick="buscarProcessoPorSei()">
+                  BUSCAR
+                </button>
+                <button type="button" class="btn-gerar" onclick="gerarNumeroLicitatorio()">
+                  GERAR NR
+                </button>
+                <button type="button" class="btn-topo btn-pdf" onclick="exportarPdf('licitatorios')">
+                  EXPORTAR PDF
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="resultadoGerador" class="resultado-gerador">
+            <div class="resultado-vazio">
+              INFORME O NR. SEI PARA LOCALIZAR O PROCESSO.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="topoResumo" class="topo-resumo">
+        <div class="resumo-faixa-botoes">
+          <button type="button" class="btn-resumo-situacao ativo" onclick="filtrarResumo('TODOS', this)">
+            TODOS
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('ANDAMENTO', this)">
+            ANDAMENTO
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('AGUARDANDO ABERTURA', this)">
+            AGUARDANDO ABERTURA
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('RECURSO', this)">
+            RECURSO
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('SUSPENSÃƒO', this)">
+            SUSPENSÃƒO
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('SUSPENSO', this)">
+            SUSPENSO
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('IMPUGNAÃ‡ÃƒO / ESCLARECIMENTO', this)">
+            IMPUGNAÃ‡ÃƒO / ESCLARECIMENTO
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('SUSPENSO PARA PARECER', this)">
+            SUSPENSO PARA PARECER
+          </button>
+          <button type="button" class="btn-resumo-situacao" onclick="filtrarResumo('FINALIZADOS', this)">
+            FINALIZADOS
+          </button>
+        </div>
+
+        <div class="barra-acoes-superior barra-resumo-pdf">
+          <button type="button" class="btn-topo btn-pdf" onclick="exportarPdf('resumo')">
+            EXPORTAR PDF
+          </button>
+        </div>
+      </div>
+
+      <div id="conteudoAndamento" class="conteudo-aba ativo">
+        <div class="acoes">
+          <input
+            type="text"
+            id="pesquisa"
+            placeholder="PESQUISAR SEI, COMPRAS, DATA, Ã“RGÃƒO, MODALIDADE, PREGÃƒO..."
+          />
+        </div>
+
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th class="coluna-check">
+                  <input type="checkbox" id="selecionarTodos" />
+                </th>
+                <th>NR. SEI</th>
+                <th>NR. COMPRAS</th>
+                <th>DATA ENTRADA SELIC</th>
+                <th>Ã“RGÃƒO</th>
+                <th>MODALIDADE</th>
+                <th>NR. PREGÃƒO</th>
+                <th>VALOR ESTIMADO</th>
+                <th>ANO DA LICITAÃ‡ÃƒO</th>
+                <th>ENCAMINHADO PARA</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-processos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="conteudoAgenda" class="conteudo-aba">
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th>DATA DE ABERTURA</th>
+                <th>HORA</th>
+                <th>NR. SEI</th>
+                <th>NR. COMPRAS</th>
+                <th>Ã“RGÃƒO</th>
+                <th>MODALIDADE</th>
+                <th>NR. PREGÃƒO</th>
+                <th>RESPONSÃVEL</th>
+                <th>STATUS</th>
+                <th>AÃ‡ÃƒO</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-agenda"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="conteudoNrLicitatorios" class="conteudo-aba">
+        <div class="licitatorio-legenda">
+          <h3>NR LICITATÃ“RIOS CADASTRADOS</h3>
+          <p>ACOMPANHAMENTO DOS NRS PROVISÃ“RIOS E DEFINIDOS.</p>
+        </div>
+
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th>NR. PREGÃƒO</th>
+                <th>ANO</th>
+                <th>MODALIDADE</th>
+                <th>NR. SEI</th>
+                <th>NR. COMPRAS</th>
+                <th>Ã“RGÃƒO</th>
+                <th>VALOR ESTIMADO</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-licitatorio"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="conteudoResumo" class="conteudo-aba">
+        <div class="resumo-legenda">
+          <h3 id="tituloResumoTabela">PROCESSOS - TODOS</h3>
+          <p id="subtituloResumoTabela">VISUALIZAÃ‡ÃƒO DOS PROCESSOS POR SITUAÃ‡ÃƒO</p>
+        </div>
+
+        <div class="tabela">
+          <table>
+            <thead>
+              <tr>
+                <th>NR. SEI</th>
+                <th>NR. COMPRAS</th>
+                <th>DATA ENTRADA SELIC</th>
+                <th>Ã“RGÃƒO</th>
+                <th>MODALIDADE</th>
+                <th>NR. PREGÃƒO</th>
+                <th>SITUAÃ‡ÃƒO</th>
+                <th>VALOR ESTIMADO</th>
+                <th>AÃ‡ÃƒO</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-resumo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-processo">
+    <div class="modal-conteudo modal-grande">
+      <div class="modal-topo">
+        <h2 id="titulo-modal-form">NOVO PROCESSO</h2>
+        <button class="fechar-modal" type="button" onclick="fecharModalCadastro()">Ã—</button>
+      </div>
+
+      <form id="form-processo">
+        <input type="hidden" id="indiceEdicao" />
+
+        <div class="form-grid">
+          <div class="campo-formulario">
+            <label for="numeroCi">NR. SEI</label>
+            <input type="text" id="numeroCi" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="numeroCompras">NR. COMPRAS</label>
+            <input type="text" id="numeroCompras" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataEntrada">DATA ENTRADA SELIC</label>
+            <input type="date" id="dataEntrada" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="orgao">Ã“RGÃƒO</label>
+            <input type="text" id="orgao" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="modalidade">MODALIDADE</label>
+            <div class="select-estilizado">
+              <select id="modalidade" required>
+                <option value="">SELECIONE A MODALIDADE</option>
+                <option value="PREGÃƒO ELETRÃ”NICO">PREGÃƒO ELETRÃ”NICO</option>
+                <option value="PREGÃƒO PRESENCIAL">PREGÃƒO PRESENCIAL</option>
+                <option value="CONCORRÃŠNCIA">CONCORRÃŠNCIA</option>
+                <option value="CHAMAMENTO PÃšBLICO">CHAMAMENTO PÃšBLICO</option>
+                <option value="SELEÃ‡ÃƒO DE FORNECEDORES">SELEÃ‡ÃƒO DE FORNECEDORES</option>
+                <option value="DISPENSA">DISPENSA</option>
+                <option value="INEXIGIBILIDADE">INEXIGIBILIDADE</option>
+                <option value="CREDENCIAMENTO">CREDENCIAMENTO</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="numeroPregao">NR. PREGÃƒO</label>
+            <input
+              type="text"
+              id="numeroPregao"
+              placeholder="XXX/2026"
+              value="XXX/2026"
+              required
+              onblur="normalizarPregaoCampo(this)"
+            />
+          </div>
+
+          <div class="campo-formulario campo-total">
+            <label for="objeto">OBJETO</label>
+            <textarea id="objeto" rows="4" required></textarea>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="fonte">FONTE</label>
+            <input type="text" id="fonte" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorEstimado">VALOR ESTIMADO</label>
+            <input
+              type="text"
+              id="valorEstimado"
+              placeholder="R$ 0,00"
+              required
+              oninput="formatarMoeda(this)"
+            />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="anoLicitacao">ANO DA LICITAÃ‡ÃƒO</label>
+            <input type="text" id="anoLicitacao" readonly />
+          </div>
+
+          <div class="campo-formulario campo-valor-extenso">
+            <label for="valorEstimadoExtenso">VALOR ESTIMADO POR EXTENSO</label>
+            <input
+              type="text"
+              id="valorEstimadoExtenso"
+              readonly
+              placeholder="O VALOR POR EXTENSO SERÃ EXIBIDO AQUI."
+            />
+          </div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-cancelar" onclick="fecharModalCadastro()">
+            CANCELAR
+          </button>
+          <button type="submit" class="btn-salvar" id="btn-salvar-form">
+            SALVAR PROCESSO
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-complementar">
+    <div class="modal-conteudo modal-grande">
+      <div class="modal-topo">
+        <h2>INFORMAÃ‡Ã•ES COMPLEMENTARES</h2>
+        <button class="fechar-modal" type="button" onclick="fecharModalComplementar()">Ã—</button>
+      </div>
+
+      <form id="form-complementar">
+        <input type="hidden" id="indiceComplementar" />
+
+        <div class="form-grid form-grid-3">
+          <div class="campo-formulario">
+            <label for="dataEntradaOutrosSetores">DATA ENTRADA DIVCON/CPC/CEC</label>
+            <input type="date" id="dataEntradaOutrosSetores" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="responsavelMinuta">RESPONSÃVEL PELA MINUTA</label>
+            <input type="text" id="responsavelMinuta" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="statusDivcon">STATUS DIVCON</label>
+            <input type="text" id="statusDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="itensLote">ITENS/LOTE</label>
+            <input type="text" id="itensLote" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="responsavelPregoeiro">RESPONSÃVEL</label>
+            <input type="text" id="responsavelPregoeiro" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="setorResponsavel">SETOR DO RESPONSÃVEL</label>
+            <input type="text" id="setorResponsavel" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataInicial">DATA INICIAL</label>
+            <input type="date" id="dataInicial" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataFinal">DATA FINAL</label>
+            <input type="date" id="dataFinal" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataAbertura">DATA DE ABERTURA</label>
+            <input type="date" id="dataAbertura" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="horaAbertura">HORA</label>
+            <input type="time" id="horaAbertura" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorDesertoFracassado">VALOR DESERTO/FRACASSADO</label>
+            <input type="text" id="valorDesertoFracassado" placeholder="R$ 0,00" oninput="formatarMoeda(this)" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorEstimadoAtualizado">VALOR ESTIMADO ATUALIZADO</label>
+            <input type="text" id="valorEstimadoAtualizado" placeholder="R$ 0,00" oninput="formatarMoeda(this)" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="andamentoDetalhado">ANDAMENTO</label>
+            <input type="text" id="andamentoDetalhado" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="seiPlanilhaComparativa">SEI PLANILHA COMPARATIVA</label>
+            <input type="text" id="seiPlanilhaComparativa" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorAdjudicado">VALOR ADJUDICADO</label>
+            <input type="text" id="valorAdjudicado" placeholder="R$ 0,00" oninput="formatarMoeda(this)" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="statusFinalCampo">STATUS</label>
+            <input type="text" id="statusFinalCampo" />
+          </div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-cancelar" onclick="fecharModalComplementar()">
+            CANCELAR
+          </button>
+          <button type="submit" class="btn-salvar">
+            SALVAR INFORMAÃ‡Ã•ES
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-visualizar">
+    <div class="modal-conteudo modal-gigante">
+      <div class="modal-topo">
+        <h2>DETALHES DO PROCESSO</h2>
+        <button class="fechar-modal" type="button" onclick="fecharModalVisualizacao()">Ã—</button>
+      </div>
+
+      <div class="detalhes-grid detalhes-grid-3">
+        <div class="detalhe-item"><span class="detalhe-label">NR. SEI</span><strong id="verNumeroCi"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">NR. COMPRAS</span><strong id="verNumeroCompras"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">DATA ENTRADA SELIC</span><strong id="verDataEntrada"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">Ã“RGÃƒO</span><strong id="verOrgao"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">MODALIDADE</span><strong id="verModalidade"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">NR. PREGÃƒO</span><strong id="verNumeroPregao"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">ANO DA LICITAÃ‡ÃƒO</span><strong id="verAnoLicitacao"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">FONTE</span><strong id="verFonte"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">VALOR ESTIMADO</span><strong id="verValorEstimado"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">ENCAMINHADO PARA</span><strong id="verEncaminhadoPara"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">SITUAÃ‡ÃƒO</span><strong id="verStatusResumo"></strong></div>
+
+        <div class="detalhe-item"><span class="detalhe-label">DATA ENTRADA DIVCON/CPC/CEC</span><strong id="verDataEntradaOutrosSetores"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">RESPONSÃVEL PELA MINUTA</span><strong id="verResponsavelMinuta"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">STATUS DIVCON</span><strong id="verStatusDivcon"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">ITENS/LOTE</span><strong id="verItensLote"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">RESPONSÃVEL</span><strong id="verResponsavelPregoeiro"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">SETOR DO RESPONSÃVEL</span><strong id="verSetorResponsavel"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">DATA INICIAL</span><strong id="verDataInicial"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">DATA FINAL</span><strong id="verDataFinal"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">DATA DE ABERTURA</span><strong id="verDataAbertura"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">HORA</span><strong id="verHoraAbertura"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">VALOR DESERTO/FRACASSADO</span><strong id="verValorDesertoFracassado"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">VALOR ESTIMADO ATUALIZADO</span><strong id="verValorEstimadoAtualizado"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">ANDAMENTO</span><strong id="verAndamentoDetalhado"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">SEI PLANILHA COMPARATIVA</span><strong id="verSeiPlanilhaComparativa"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">VALOR ADJUDICADO</span><strong id="verValorAdjudicado"></strong></div>
+        <div class="detalhe-item"><span class="detalhe-label">STATUS</span><strong id="verStatusFinalCampo"></strong></div>
+
+        <div class="detalhe-item detalhe-item-total">
+          <span class="detalhe-label">OBJETO</span>
+          <strong id="verObjeto" class="texto-justificado"></strong>
+        </div>
+
+        <div class="detalhe-item detalhe-item-total">
+          <span class="detalhe-label">HISTÃ“RICO</span>
+          <div id="verHistorico" class="historico-lista"></div>
+        </div>
+      </div>
+
+      <div class="acoes-modal">
+        <button type="button" class="btn-cancelar" onclick="fecharModalVisualizacao()">FECHAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-enviar">
+    <div class="modal-conteudo modal-menor">
+      <div class="modal-topo">
+        <h2>ENVIAR PROCESSO(S)</h2>
+        <button class="fechar-modal" type="button" onclick="fecharModalEnvio()">Ã—</button>
+      </div>
+
+      <form id="form-enviar">
+        <div class="bloco-selecionados">
+          <p class="detalhe-label">PROCESSOS SELECIONADOS</p>
+          <div id="listaEnvioSelecionados" class="lista-envio"></div>
+        </div>
+
+        <div class="campo-formulario campo-envio">
+          <label for="setorDestino">SELECIONAR SETOR DE DESTINO</label>
+          <select id="setorDestino" required>
+            <option value="">SELECIONE</option>
+            <option value="DIVCON">DIVCON</option>
+            <option value="CEC">CEC</option>
+            <option value="CPC">CPC</option>
+          </select>
+        </div>
+
+        <div class="aviso-reenvio oculto" id="avisoReenvioSetor">
+          <strong>CONFIRMAÃ‡ÃƒO NECESSÃRIA</strong>
+          <p id="textoAvisoReenvio">
+            ESTE PROCESSO JÃ FOI ENCAMINHADO PARA OUTRO SETOR. CONFIRME PARA ALTERAR O DESTINO.
+          </p>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-cancelar" onclick="fecharModalEnvio()">CANCELAR</button>
+          <button type="submit" class="btn-enviar" id="btnConfirmarEnvioSetor">ENVIAR PROCESSO(S)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-status">
+    <div class="modal-conteudo modal-menor">
+      <div class="modal-topo">
+        <h2>ALTERAR SITUAÃ‡ÃƒO</h2>
+        <button class="fechar-modal" type="button" onclick="fecharModalStatus()">Ã—</button>
+      </div>
+
+      <form id="form-status">
+        <input type="hidden" id="indiceStatus" />
+
+        <div class="campo-formulario">
+          <label for="novoStatusResumo">NOVA SITUAÃ‡ÃƒO</label>
+          <select id="novoStatusResumo" required>
+            <option value="ANDAMENTO">ANDAMENTO</option>
+            <option value="AGUARDANDO ABERTURA">AGUARDANDO ABERTURA</option>
+            <option value="RECURSO">RECURSO</option>
+            <option value="SUSPENSÃƒO">SUSPENSÃƒO</option>
+            <option value="SUSPENSO">SUSPENSO</option>
+            <option value="IMPUGNAÃ‡ÃƒO / ESCLARECIMENTO">IMPUGNAÃ‡ÃƒO / ESCLARECIMENTO</option>
+            <option value="SUSPENSO PARA PARECER">SUSPENSO PARA PARECER</option>
+            <option value="FINALIZADOS">FINALIZADOS</option>
+          </select>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-cancelar" onclick="fecharModalStatus()">CANCELAR</button>
+          <button type="submit" class="btn-salvar">SALVAR SITUAÃ‡ÃƒO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  </template>
+
+  <template id="tpl-divcon">
+<div class="container">
+    <section class="hero">
+      <div>
+        <span class="hero-tag">SETOR VINCULADO AO DIVACP</span>
+        <h1>PAINEL DE RECEBIMENTO - DIVCON</h1>
+        <p>
+          PROCESSOS ENVIADOS PELO DIVACP COM EDIÃ‡ÃƒO COMPARTILHADA E ATUALIZAÃ‡ÃƒO AUTOMÃTICA ENTRE OS SETORES.
+        </p>
+      </div>
+
+      <div class="hero-controles">
+        <div class="notificacao-box">
+          <button
+            type="button"
+            class="btn-notificacao"
+            id="btnNotificacaoDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuNotificacaoDivcon"
+          >
+            <span class="icone-sino" aria-hidden="true"></span>
+            <span class="badge-notificacao" id="badgeNotificacaoDivcon">0</span>
+          </button>
+
+          <div class="menu-notificacao" id="menuNotificacaoDivcon" role="menu" aria-labelledby="btnNotificacaoDivcon">
+            <div class="menu-notificacao-topo">
+              <strong>NOTIFICAÃ‡Ã•ES</strong>
+              <button type="button" class="btn-limpar-notificacao" id="btnLerNotificacoes">
+                MARCAR COMO LIDAS
+              </button>
+            </div>
+            <div id="listaNotificacoesDivcon" class="lista-notificacoes"></div>
+          </div>
+        </div>
+
+        <div class="perfil-box-divcon">
+          <button
+            type="button"
+            class="btn-perfil"
+            id="btnPerfilDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuPerfilDivcon"
+          >
+            <span class="icone-perfil" aria-hidden="true">
+              <span class="icone-perfil-cabeca"></span>
+              <span class="icone-perfil-corpo"></span>
+            </span>
+            <span class="btn-perfil-texto">
+              <strong>PERFIL</strong>
+              <small>DIVCON</small>
+            </span>
+            <span class="btn-perfil-seta" aria-hidden="true"></span>
+          </button>
+
+          <div class="menu-perfil" id="menuPerfilDivcon" role="menu" aria-labelledby="btnPerfilDivcon">
+            <div class="menu-perfil-cabecalho">
+              <span class="menu-perfil-legenda">ACESSO ATUAL</span>
+              <strong>SETOR DIVCON</strong>
+              <small>FLUXO DE MINUTA E PUBLICAÃ‡ÃƒO</small>
+            </div>
+            <button type="button" class="menu-perfil-item menu-perfil-item-destaque" role="menuitem" onclick="executarAcaoPerfilDivcon('sair')">
+              SAIR
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <span>RECEBIDOS</span>
+        <strong id="cardRecebidos">0</strong>
+      </article>
+      <article class="card">
+        <span>EM TRATAMENTO</span>
+        <strong id="cardTratamento">0</strong>
+      </article>
+      <article class="card">
+        <span>ATUALIZADOS</span>
+        <strong id="cardAtualizados">0</strong>
+      </article>
+      <article class="card card-orgao">
+        <span>Ã“RGÃƒO</span>
+        <strong id="cardOrgao">0</strong>
+      </article>
+      <article class="card card-juridico">
+        <span>JURÃDICO</span>
+        <strong id="cardJuridico">0</strong>
+      </article>
+      <article class="card card-publicado">
+        <span>PUBLICADOS</span>
+        <strong id="cardPublicado">0</strong>
+      </article>
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <div>
+          <div class="filtros-divcon">
+            <button type="button" class="btn-filtro-recebidos filtro-nav ativo" id="btnRecebidosDivcon" onclick="selecionarPainelDivcon('recebidos', this)">
+              RECEBIDOS
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAndamentoDivcon" onclick="selecionarPainelDivcon('andamento', this)">
+              ANDAMENTO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-orgao filtro-nav" id="btnStatusOrgaoDivcon" onclick="filtrarStatusAndamento('ORGÃƒO', this)">
+              ORGÃƒO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-juridico filtro-nav" id="btnStatusJuridicoDivcon" onclick="filtrarStatusAndamento('JURIDICO', this)">
+              JURIDICO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-publicado filtro-nav" id="btnStatusPublicadoDivcon" onclick="filtrarStatusAndamento('PUBLICADO', this)">
+              PUBLICADO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-todos filtro-nav" id="btnStatusTodosDivcon" onclick="filtrarStatusAndamento('TODOS', this)">
+              TODOS
+            </button>
+          </div>
+          <h2>PROCESSOS RECEBIDOS PELA DIVCON</h2>
+          <p id="textoStatusPainel">SELECIONE UM PROCESSO PARA CONSULTAR OU ATUALIZAR.</p>
+        </div>
+
+        <div class="barra-acoes">
+          <button type="button" class="btn-topo" id="btnVisualizarDivcon" onclick="visualizarSelecionado()" disabled>
+            VISUALIZAR
+          </button>
+          <button type="button" class="btn-topo btn-principal" id="btnEditarDivcon" onclick="editarSelecionado()" disabled>
+            EDITAR
+          </button>
+          <button type="button" class="btn-topo btn-enviar-divcon" id="btnEnviarDivcon" onclick="acaoEnviarSelecionadosDivcon()" disabled>
+            ENVIAR
+          </button>
+          <button type="button" class="btn-topo btn-cadastros-divcon" onclick="abrirModalCadastrosDivcon()">
+            CADASTROS
+          </button>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <input type="text" id="pesquisaDivcon" placeholder="PESQUISAR SEI, Ã“RGÃƒO, MODALIDADE, STATUS..." />
+      </div>
+
+      <div class="tabela">
+        <table>
+          <thead>
+            <tr>
+              <th class="coluna-check">
+                <input type="checkbox" id="selecionarTodosDivcon" />
+              </th>
+              <th class="coluna-sei">NR. SEI</th>
+              <th>NR. COMPRAS</th>
+              <th>Ã“RGÃƒO</th>
+              <th>MODALIDADE</th>
+              <th>NR. PREGÃƒO</th>
+              <th>RESPONSÃVEL MINUTA</th>
+              <th>STATUS DIVCON</th>
+              <th>DATA RECEBIMENTO</th>
+              <th>AÃ‡ÃƒO</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaDivcon"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="modal-divcon">
+    <div class="modal-conteudo modal-edicao-divcon-conteudo">
+      <div class="modal-topo">
+        <h2 id="tituloModalDivcon">ATUALIZAR PROCESSO NA DIVCON</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalDivcon()">Ã—</button>
+      </div>
+
+      <form id="formDivcon">
+        <input type="hidden" id="indiceDivcon" />
+
+        <div class="grid-resumo grid-resumo-edicao-divcon">
+          <div class="resumo-item"><span>NR. SEI</span><strong id="resumoNumeroCi"></strong></div>
+          <div class="resumo-item"><span>Ã“RGÃƒO</span><strong id="resumoOrgao"></strong></div>
+          <div class="resumo-item"><span>MODALIDADE</span><strong id="resumoModalidade"></strong></div>
+          <div class="resumo-item"><span>NR. PREGÃƒO</span><strong id="resumoPregao"></strong></div>
+          <div class="resumo-item"><span>VALOR ESTIMADO</span><strong id="resumoValor"></strong></div>
+          <div class="resumo-item resumo-item-total"><span>OBJETO</span><strong id="resumoObjeto"></strong></div>
+        </div>
+
+        <div class="form-grid form-grid-edicao-divcon">
+          <div class="campo-formulario">
+            <label for="dataEntradaOutrosSetoresDivcon">DATA RECEBIMENTO DIVCON</label>
+            <input type="date" id="dataEntradaOutrosSetoresDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="situacaoMinutaEditalDivcon">RESPONSÃVEL PELA MINUTA/EDITAL</label>
+            <div class="select-estilizado">
+              <select id="situacaoMinutaEditalDivcon">
+                <option value="">SELECIONE O RESPONSÃVEL</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataEnvioJuridicoDivcon">DATA ENVIO JURÃDICO</label>
+            <input type="date" id="dataEnvioJuridicoDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataEnvioOrgaoDivcon">DATA ENVIO Ã“RGÃƒO</label>
+            <input type="date" id="dataEnvioOrgaoDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="aberturaPregaoDivcon">ABERTURA PREGÃƒO</label>
+            <input type="date" id="aberturaPregaoDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="responsavelPublicacaoDivcon">RESPONSÃVEL PELA PUBLICAÃ‡ÃƒO</label>
+            <div class="select-estilizado">
+              <select id="responsavelPublicacaoDivcon">
+                <option value="">SELECIONE O RESPONSÃVEL</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="pregoeiroDivcon">PREGOEIRO</label>
+            <div class="select-estilizado">
+              <select id="pregoeiroDivcon">
+                <option value="">SELECIONE O PREGOEIRO</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="statusProcessoDivcon">STATUS</label>
+            <div class="select-estilizado">
+              <select id="statusProcessoDivcon">
+                <option value="">SELECIONE</option>
+                <option value="PUBLICADO">PUBLICADO</option>
+                <option value="JURIDICO">JURIDICO</option>
+                <option value="ORGÃƒO">ORGÃƒO</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="acoes-modal acoes-modal-divcon">
+          <button type="button" class="btn-modal-divcon btn-modal-secundario" onclick="fecharModalDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-modal-divcon btn-modal-primario">SALVAR NA DIVCON</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-visualizar-divcon">
+    <div class="modal-conteudo modal-visualizar-divcon-conteudo">
+      <div class="modal-topo">
+        <h2>DETALHES DO PROCESSO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharVisualizacaoDivcon()">Ã—</button>
+      </div>
+
+      <div class="visualizacao-divcon-cabecalho" id="cabecalhoVisualizacaoDivcon"></div>
+      <div class="visualizacao-divcon-corpo" id="gradeDetalhesDivcon"></div>
+
+      <div class="acoes-modal">
+        <button type="button" class="btn-topo" onclick="fecharVisualizacaoDivcon()">FECHAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-enviar-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>ENVIAR PROCESSO(S)</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalEnvioDivcon()">Ã—</button>
+      </div>
+
+      <form id="formEnviarDivcon">
+        <div class="bloco-selecionados">
+          <p class="detalhe-label-divcon">PROCESSOS SELECIONADOS</p>
+          <div id="listaEnvioDivcon" class="lista-envio-divcon"></div>
+        </div>
+
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="setorDestinoDivcon">SELECIONAR SETOR DE DESTINO</label>
+          <div class="select-estilizado">
+            <select id="setorDestinoDivcon" required>
+              <option value="">SELECIONE</option>
+              <option value="CEC">CEC</option>
+              <option value="CPC">CPC</option>
+              <option value="DIPREG">DIPREG</option>
+              <option value="DIVACP">DIVACP</option>
+            </select>
+            <span class="select-estilizado-icone" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalEnvioDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-enviar-divcon">ENVIAR PROCESSO(S)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-responsavel-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR RESPONSÃVEL</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalResponsavelDivcon()">Ã—</button>
+      </div>
+
+      <form id="formResponsavelDivcon">
+        <div class="form-grid campo-envio-divcon">
+          <div class="campo-formulario">
+            <label for="responsavelRapidoDivcon">NOME DO RESPONSÃVEL</label>
+            <input type="text" id="responsavelRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO RESPONSÃVEL" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label>FUNÃ‡Ã•ES AUTORIZADAS</label>
+            <div class="responsabilidades-cadastro">
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoMinutaDivcon" />
+                <span>RESPONSÃVEL PELA MINUTA/EDITAL</span>
+              </label>
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoPublicacaoDivcon" />
+                <span>RESPONSÃVEL PELA PUBLICAÃ‡ÃƒO</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">RESPONSÃVEIS CADASTRADOS</p>
+          <div id="listaResponsaveisCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalResponsavelDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR RESPONSÃVEL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-pregoeiro-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR PREGOEIRO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalPregoeiroDivcon()">Ã—</button>
+      </div>
+
+      <form id="formPregoeiroDivcon">
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="pregoeiroRapidoDivcon">NOME DO PREGOEIRO</label>
+          <input type="text" id="pregoeiroRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO PREGOEIRO" required />
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">PREGOEIROS CADASTRADOS</p>
+          <div id="listaPregoeirosCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalPregoeiroDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR PREGOEIRO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-cadastros-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTROS DA DIVCON</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalCadastrosDivcon()">Ã—</button>
+      </div>
+
+      <div class="cadastros-divcon-acoes">
+        <button type="button" class="btn-modal-divcon btn-modal-primario" onclick="abrirCadastroResponsavelPeloPainel()">
+          CADASTRAR RESPONSÃVEL
+        </button>
+        <button type="button" class="btn-modal-divcon btn-modal-secundario" onclick="abrirCadastroPregoeiroPeloPainel()">
+          CADASTRAR PREGOEIRO
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastDivcon" class="toast"></div>
+  </template>
+
+  <template id="tpl-cpc">
+<div class="container">
+    <section class="hero">
+      <div>
+        <span class="hero-tag">SETOR VINCULADO AO DIVACP</span>
+        <h1>PAINEL DE RECEBIMENTO - CPC</h1>
+        <p>
+          PROCESSOS ENVIADOS PELO DIVACP COM EDIÇÃO COMPARTILHADA E ATUALIZAÇÃO AUTOMÁTICA ENTRE OS SETORES.
+        </p>
+      </div>
+
+      <div class="hero-controles">
+        <div class="notificacao-box">
+          <button
+            type="button"
+            class="btn-notificacao"
+            id="btnNotificacaoDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuNotificacaoDivcon"
+          >
+            <span class="icone-sino" aria-hidden="true"></span>
+            <span class="badge-notificacao" id="badgeNotificacaoDivcon">0</span>
+          </button>
+
+          <div class="menu-notificacao" id="menuNotificacaoDivcon" role="menu" aria-labelledby="btnNotificacaoDivcon">
+            <div class="menu-notificacao-topo">
+              <strong>NOTIFICAÇÕES</strong>
+              <button type="button" class="btn-limpar-notificacao" id="btnLerNotificacoes">
+                MARCAR COMO LIDAS
+              </button>
+            </div>
+            <div id="listaNotificacoesDivcon" class="lista-notificacoes"></div>
+          </div>
+        </div>
+
+        <div class="perfil-box-divcon">
+          <button
+            type="button"
+            class="btn-perfil"
+            id="btnPerfilDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuPerfilDivcon"
+          >
+            <span class="icone-perfil" aria-hidden="true">
+              <span class="icone-perfil-cabeca"></span>
+              <span class="icone-perfil-corpo"></span>
+            </span>
+            <span class="btn-perfil-texto">
+              <strong>PERFIL</strong>
+              <small>CPC</small>
+            </span>
+            <span class="btn-perfil-seta" aria-hidden="true"></span>
+          </button>
+
+          <div class="menu-perfil" id="menuPerfilDivcon" role="menu" aria-labelledby="btnPerfilDivcon">
+            <div class="menu-perfil-cabecalho">
+              <span class="menu-perfil-legenda">ACESSO ATUAL</span>
+              <strong>SETOR CPC</strong>
+              <small>FLUXO DE MINUTA E PUBLICAÇÃO</small>
+            </div>
+            <button type="button" class="menu-perfil-item menu-perfil-item-destaque" role="menuitem" onclick="executarAcaoPerfilDivcon('sair')">
+              SAIR
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <span>RECEBIDOS</span>
+        <strong id="cardRecebidos">0</strong>
+      </article>
+      <article class="card">
+        <span>EM TRATAMENTO</span>
+        <strong id="cardTratamento">0</strong>
+      </article>
+      <article class="card">
+        <span>AGUARDANDO ABERTURA</span>
+        <strong id="cardAguardandoAbertura">0</strong>
+      </article>
+      <article class="card card-suspenso-quest">
+        <span>SUSPENSO QUEST IMPUG</span>
+        <strong id="cardSuspensoQuest">0</strong>
+      </article>
+      <article class="card card-suspenso-parecer">
+        <span>SUSPENSO PARA PARECER</span>
+        <strong id="cardSuspensoParecer">0</strong>
+      </article>
+      <article class="card card-revogado">
+        <span>REVOGADO</span>
+        <strong id="cardRevogado">0</strong>
+      </article>
+      <article class="card card-recurso">
+        <span>RECURSO</span>
+        <strong id="cardRecurso">0</strong>
+      </article>
+      <article class="card card-finalizados">
+        <span>FINALIZADOS</span>
+        <strong id="cardFinalizados">0</strong>
+      </article>
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <div>
+          <div class="filtros-divcon">
+            <button type="button" class="btn-filtro-recebidos filtro-nav ativo" id="btnRecebidosDivcon" onclick="selecionarPainelDivcon('recebidos', this)">
+              RECEBIDOS
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAndamentoDivcon" onclick="selecionarPainelDivcon('andamento', this)">
+              ANDAMENTO
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAgendaDivcon" onclick="selecionarPainelDivcon('agenda', this)">
+              AGENDA
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-suspenso-quest filtro-nav" id="btnStatusSuspensoQuestDivcon" onclick="filtrarStatusAndamento('SUSPENSO QUEST IMPUG', this)">
+              SUSPENSO QUEST IMPUG
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-suspenso-parecer filtro-nav" id="btnStatusSuspensoParecerDivcon" onclick="filtrarStatusAndamento('SUSPENSO PARA PARECER', this)">
+              SUSPENSO PARA PARECER
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-revogado filtro-nav" id="btnStatusRevogadoDivcon" onclick="filtrarStatusAndamento('REVOGADO', this)">
+              REVOGADO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-recurso filtro-nav" id="btnStatusRecursoDivcon" onclick="filtrarStatusAndamento('RECURSO', this)">
+              RECURSO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-finalizados filtro-nav" id="btnStatusFinalizadosDivcon" onclick="filtrarStatusAndamento('FINALIZADOS', this)">
+              FINALIZADOS
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-todos filtro-nav" id="btnStatusTodosDivcon" onclick="filtrarStatusAndamento('TODOS', this)">
+              TODOS
+            </button>
+          </div>
+          <h2>PROCESSOS RECEBIDOS PELA CPC</h2>
+          <p id="textoStatusPainel">SELECIONE UM PROCESSO PARA CONSULTAR OU ATUALIZAR.</p>
+        </div>
+
+        <div class="barra-acoes">
+          <button type="button" class="btn-topo" id="btnVisualizarDivcon" onclick="visualizarSelecionado()" disabled>
+            VISUALIZAR
+          </button>
+          <button type="button" class="btn-topo btn-principal" id="btnEditarDivcon" onclick="editarSelecionado()" disabled>
+            EDITAR
+          </button>
+          <button type="button" class="btn-topo btn-enviar-divcon" id="btnEnviarDivcon" onclick="acaoEnviarSelecionadosDivcon()" disabled>
+            ENVIAR
+          </button>
+          <button type="button" class="btn-topo btn-cadastros-divcon" onclick="abrirModalPregoeiroDivcon()">
+            CADASTRAR PREGOEIRO
+          </button>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <input type="text" id="pesquisaDivcon" placeholder="PESQUISAR SEI, ÓRGÃO, MODALIDADE, STATUS..." />
+      </div>
+
+      <div class="tabela">
+        <table>
+          <thead id="cabecalhoTabelaCpc">
+            <tr>
+              <th class="coluna-check">
+                <input type="checkbox" id="selecionarTodosDivcon" />
+              </th>
+              <th class="coluna-sei">NR. SEI</th>
+              <th>NR. COMPRAS</th>
+              <th>ÓRGÃO</th>
+              <th>MODALIDADE</th>
+              <th>NR. PREGÃO</th>
+              <th>RESPONSÁVEL MINUTA</th>
+              <th>STATUS CPC</th>
+              <th id="colunaDataPainelCpc">DATA RECEBIMENTO</th>
+              <th>AÇÃO</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaDivcon"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="modal-divcon">
+    <div class="modal-conteudo modal-edicao-divcon-conteudo">
+      <div class="modal-topo">
+        <h2 id="tituloModalDivcon">ATUALIZAR PROCESSO NA CPC</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalDivcon()">×</button>
+      </div>
+
+      <form id="formDivcon">
+        <input type="hidden" id="indiceDivcon" />
+
+        <div class="grid-resumo grid-resumo-edicao-divcon">
+          <div class="resumo-item"><span>NR. SEI</span><strong id="resumoNumeroCi"></strong></div>
+          <div class="resumo-item"><span>ÓRGÃO</span><strong id="resumoOrgao"></strong></div>
+          <div class="resumo-item"><span>MODALIDADE</span><strong id="resumoModalidade"></strong></div>
+          <div class="resumo-item"><span>NR. PREGÃO</span><strong id="resumoPregao"></strong></div>
+          <div class="resumo-item"><span>VALOR ESTIMADO</span><strong id="resumoValor"></strong></div>
+          <div class="resumo-item resumo-item-total"><span>OBJETO</span><strong id="resumoObjeto"></strong></div>
+        </div>
+
+        <div class="form-grid form-grid-edicao-divcon">
+          <div class="campo-formulario">
+            <label for="dataEntradaOutrosSetoresDivcon">DATA RECEBIMENTO CPC</label>
+            <input type="date" id="dataEntradaOutrosSetoresDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataSaidaCpc">DATA SAÍDA</label>
+            <input type="date" id="dataSaidaCpc" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="setorResponsavelDivcon">SETOR</label>
+            <input type="text" id="setorResponsavelDivcon" class="entrada-maiuscula" value="CPC" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="responsavelCpc">RESPONSÁVEL</label>
+            <div class="select-estilizado">
+              <select id="responsavelCpc">
+                <option value="">SELECIONE O PREGOEIRO</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataInicialDivcon">RETIRADA INICIAL</label>
+            <input type="date" id="dataInicialDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataFinalDivcon">DATA FINAL</label>
+            <input type="date" id="dataFinalDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="aberturaPregaoDivcon">DATA DE ABERTURA</label>
+            <input type="date" id="aberturaPregaoDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="horaAberturaDivcon">HORA</label>
+            <input type="time" id="horaAberturaDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="quantidadeItensDivcon">QUANTIDADE DE ITENS</label>
+            <input type="number" id="quantidadeItensDivcon" min="0" step="1" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="possuiLoteDivcon">LOTE</label>
+            <div class="select-estilizado">
+              <select id="possuiLoteDivcon">
+                <option value="NAO">NÃO</option>
+                <option value="SIM">SIM</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario" id="campoQuantidadeLotesDivcon">
+            <label for="quantidadeLotesDivcon">QUANTIDADE DE LOTES</label>
+            <input type="number" id="quantidadeLotesDivcon" min="0" step="1" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="itensLoteDivcon">ITENS / LOTE</label>
+            <input type="text" id="itensLoteDivcon" class="entrada-maiuscula" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorDesertoFracassadoDivcon">VALOR DESERTO/FRACASSADO</label>
+            <input type="text" id="valorDesertoFracassadoDivcon" placeholder="R$ 0,00" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorEstimadoAtualizadoDivcon">ESTIMADO (ATUALIZADO)</label>
+            <input type="text" id="valorEstimadoAtualizadoDivcon" placeholder="R$ 0,00" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorAdjudicadoDivcon">VALOR ADJUDICADO</label>
+            <input type="text" id="valorAdjudicadoDivcon" placeholder="R$ 0,00" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="seiPlanilhaComparativaDivcon">NÚMERO DA PLANILHA COMPARATIVA NO SEI</label>
+            <input type="text" id="seiPlanilhaComparativaDivcon" class="entrada-maiuscula" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="statusProcessoDivcon">STATUS</label>
+            <div class="select-estilizado">
+              <select id="statusProcessoDivcon">
+                <option value="">SELECIONE</option>
+                <option value="ABERTO">ABERTO</option>
+                <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                <option value="AGUARDANDO ABERTURA">AGUARDANDO ABERTURA</option>
+                <option value="AGUARDANDO REABERTURA">AGUARDANDO REABERTURA</option>
+                <option value="ALERTA LICON">ALERTA LICON</option>
+                <option value="ANULADO">ANULADO</option>
+                <option value="CANCELADO">CANCELADO</option>
+                <option value="DESERTO">DESERTO</option>
+                <option value="FINALIZADO">FINALIZADO</option>
+                <option value="FRACASSADO">FRACASSADO</option>
+                <option value="RECURSO">RECURSO</option>
+                <option value="REVOGADO">REVOGADO</option>
+                <option value="SUSPENSO/QUEST/IMPUG">SUSPENSO/QUEST/IMPUG</option>
+                <option value="PUBLICAR LICON">PUBLICAR LICON</option>
+                <option value="SUSPENSO">SUSPENSO</option>
+                <option value="SUSPENSO PARA PARECER">SUSPENSO PARA PARECER</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario campo-recurso-cpc oculto">
+            <label for="dataFinalRecursoCpc">DATA FINAL RECURSO</label>
+            <input type="date" id="dataFinalRecursoCpc" />
+          </div>
+
+          <div class="campo-formulario campo-recurso-cpc oculto">
+            <label for="dataFinalContrarrazaoCpc">DATA FINAL CONTRARRAZÃO</label>
+            <input type="date" id="dataFinalContrarrazaoCpc" />
+          </div>
+
+          <div class="campo-formulario campo-recurso-cpc oculto">
+            <label for="dataDecisaoCpc">DATA PARA DECISÃO</label>
+            <input type="date" id="dataDecisaoCpc" />
+          </div>
+
+          <div class="campo-formulario campo-formulario-total">
+            <label for="andamentoDetalhadoDivcon">ANDAMENTO</label>
+            <textarea id="andamentoDetalhadoDivcon" class="entrada-maiuscula" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="acoes-modal acoes-modal-divcon">
+          <button type="button" class="btn-modal-divcon btn-modal-secundario" onclick="fecharModalDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-modal-divcon btn-modal-primario">SALVAR NA CPC</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-visualizar-divcon">
+    <div class="modal-conteudo modal-visualizar-divcon-conteudo">
+      <div class="modal-topo">
+        <h2>DETALHES DO PROCESSO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharVisualizacaoDivcon()">×</button>
+      </div>
+
+      <div class="visualizacao-divcon-cabecalho" id="cabecalhoVisualizacaoDivcon"></div>
+      <div class="visualizacao-divcon-corpo" id="gradeDetalhesDivcon"></div>
+
+      <div class="acoes-modal">
+        <button type="button" class="btn-topo" onclick="fecharVisualizacaoDivcon()">FECHAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-enviar-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>ENVIAR PROCESSO(S)</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalEnvioDivcon()">×</button>
+      </div>
+
+      <form id="formEnviarDivcon">
+        <div class="bloco-selecionados">
+          <p class="detalhe-label-divcon">PROCESSOS SELECIONADOS</p>
+          <div id="listaEnvioDivcon" class="lista-envio-divcon"></div>
+        </div>
+
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="setorDestinoDivcon">SELECIONAR SETOR DE DESTINO</label>
+          <div class="select-estilizado">
+            <select id="setorDestinoDivcon" required>
+              <option value="">SELECIONE</option>
+              <option value="CEC">CEC</option>
+              <option value="CPC">CPC</option>
+              <option value="DIVACP">DIVACP</option>
+            </select>
+            <span class="select-estilizado-icone" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalEnvioDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-enviar-divcon">ENVIAR PROCESSO(S)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-responsavel-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR RESPONSÁVEL</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalResponsavelDivcon()">×</button>
+      </div>
+
+      <form id="formResponsavelDivcon">
+        <div class="form-grid campo-envio-divcon">
+          <div class="campo-formulario">
+            <label for="responsavelRapidoDivcon">NOME DO RESPONSÁVEL</label>
+            <input type="text" id="responsavelRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO RESPONSÁVEL" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label>FUNÇÕES AUTORIZADAS</label>
+            <div class="responsabilidades-cadastro">
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoMinutaDivcon" />
+                <span>RESPONSÁVEL PELA MINUTA/EDITAL</span>
+              </label>
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoPublicacaoDivcon" />
+                <span>RESPONSÁVEL PELA PUBLICAÇÃO</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">RESPONSÁVEIS CADASTRADOS</p>
+          <div id="listaResponsaveisCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalResponsavelDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR RESPONSÁVEL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-pregoeiro-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR PREGOEIRO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalPregoeiroDivcon()">×</button>
+      </div>
+
+      <form id="formPregoeiroDivcon">
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="pregoeiroRapidoDivcon">NOME DO PREGOEIRO</label>
+          <input type="text" id="pregoeiroRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO PREGOEIRO" required />
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">PREGOEIROS CADASTRADOS</p>
+          <div id="listaPregoeirosCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalPregoeiroDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR PREGOEIRO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastDivcon" class="toast"></div>
+  </template>
+
+  <template id="tpl-cec">
+<div class="container">
+    <section class="hero">
+      <div>
+        <span class="hero-tag">SETOR VINCULADO AO DIVACP</span>
+        <h1>PAINEL DE RECEBIMENTO - CEC</h1>
+        <p>
+          PROCESSOS ENVIADOS PELO DIVACP COM EDIÇÃO COMPARTILHADA E ATUALIZAÇÃO AUTOMÁTICA ENTRE OS SETORES.
+        </p>
+      </div>
+
+      <div class="hero-controles">
+        <div class="notificacao-box">
+          <button
+            type="button"
+            class="btn-notificacao"
+            id="btnNotificacaoDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuNotificacaoDivcon"
+          >
+            <span class="icone-sino" aria-hidden="true"></span>
+            <span class="badge-notificacao" id="badgeNotificacaoDivcon">0</span>
+          </button>
+
+          <div class="menu-notificacao" id="menuNotificacaoDivcon" role="menu" aria-labelledby="btnNotificacaoDivcon">
+            <div class="menu-notificacao-topo">
+              <strong>NOTIFICAÇÕES</strong>
+              <button type="button" class="btn-limpar-notificacao" id="btnLerNotificacoes">
+                MARCAR COMO LIDAS
+              </button>
+            </div>
+            <div id="listaNotificacoesDivcon" class="lista-notificacoes"></div>
+          </div>
+        </div>
+
+        <div class="perfil-box-divcon">
+          <button
+            type="button"
+            class="btn-perfil"
+            id="btnPerfilDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuPerfilDivcon"
+          >
+            <span class="icone-perfil" aria-hidden="true">
+              <span class="icone-perfil-cabeca"></span>
+              <span class="icone-perfil-corpo"></span>
+            </span>
+            <span class="btn-perfil-texto">
+              <strong>PERFIL</strong>
+              <small>CEC</small>
+            </span>
+            <span class="btn-perfil-seta" aria-hidden="true"></span>
+          </button>
+
+          <div class="menu-perfil" id="menuPerfilDivcon" role="menu" aria-labelledby="btnPerfilDivcon">
+            <div class="menu-perfil-cabecalho">
+              <span class="menu-perfil-legenda">ACESSO ATUAL</span>
+              <strong>SETOR CEC</strong>
+              <small>FLUXO DE MINUTA E PUBLICAÇÃO</small>
+            </div>
+            <button type="button" class="menu-perfil-item menu-perfil-item-destaque" role="menuitem" onclick="executarAcaoPerfilDivcon('sair')">
+              SAIR
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <span>RECEBIDOS</span>
+        <strong id="cardRecebidos">0</strong>
+      </article>
+      <article class="card">
+        <span>EM TRATAMENTO</span>
+        <strong id="cardTratamento">0</strong>
+      </article>
+      <article class="card">
+        <span>AGUARDANDO ABERTURA</span>
+        <strong id="cardAguardandoAbertura">0</strong>
+      </article>
+      <article class="card card-suspenso-quest">
+        <span>SUSPENSO QUEST IMPUG</span>
+        <strong id="cardSuspensoQuest">0</strong>
+      </article>
+      <article class="card card-suspenso-parecer">
+        <span>SUSPENSO PARA PARECER</span>
+        <strong id="cardSuspensoParecer">0</strong>
+      </article>
+      <article class="card card-revogado">
+        <span>REVOGADO</span>
+        <strong id="cardRevogado">0</strong>
+      </article>
+      <article class="card card-recurso">
+        <span>RECURSO</span>
+        <strong id="cardRecurso">0</strong>
+      </article>
+      <article class="card card-finalizados">
+        <span>FINALIZADOS</span>
+        <strong id="cardFinalizados">0</strong>
+      </article>
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <div>
+          <div class="filtros-divcon">
+            <button type="button" class="btn-filtro-recebidos filtro-nav ativo" id="btnRecebidosDivcon" onclick="selecionarPainelDivcon('recebidos', this)">
+              RECEBIDOS
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAndamentoDivcon" onclick="selecionarPainelDivcon('andamento', this)">
+              ANDAMENTO
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAgendaDivcon" onclick="selecionarPainelDivcon('agenda', this)">
+              AGENDA
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-suspenso-quest filtro-nav" id="btnStatusSuspensoQuestDivcon" onclick="filtrarStatusAndamento('SUSPENSO QUEST IMPUG', this)">
+              SUSPENSO QUEST IMPUG
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-suspenso-parecer filtro-nav" id="btnStatusSuspensoParecerDivcon" onclick="filtrarStatusAndamento('SUSPENSO PARA PARECER', this)">
+              SUSPENSO PARA PARECER
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-revogado filtro-nav" id="btnStatusRevogadoDivcon" onclick="filtrarStatusAndamento('REVOGADO', this)">
+              REVOGADO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-recurso filtro-nav" id="btnStatusRecursoDivcon" onclick="filtrarStatusAndamento('RECURSO', this)">
+              RECURSO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-finalizados filtro-nav" id="btnStatusFinalizadosDivcon" onclick="filtrarStatusAndamento('FINALIZADOS', this)">
+              FINALIZADOS
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-todos filtro-nav" id="btnStatusTodosDivcon" onclick="filtrarStatusAndamento('TODOS', this)">
+              TODOS
+            </button>
+          </div>
+          <h2>PROCESSOS RECEBIDOS PELA CEC</h2>
+          <p id="textoStatusPainel">SELECIONE UM PROCESSO PARA CONSULTAR OU ATUALIZAR.</p>
+        </div>
+
+        <div class="barra-acoes">
+          <button type="button" class="btn-topo" id="btnVisualizarDivcon" onclick="visualizarSelecionado()" disabled>
+            VISUALIZAR
+          </button>
+          <button type="button" class="btn-topo btn-principal" id="btnEditarDivcon" onclick="editarSelecionado()" disabled>
+            EDITAR
+          </button>
+          <button type="button" class="btn-topo btn-enviar-divcon" id="btnEnviarDivcon" onclick="acaoEnviarSelecionadosDivcon()" disabled>
+            ENVIAR
+          </button>
+          <button type="button" class="btn-topo btn-cadastros-divcon" onclick="abrirModalPregoeiroDivcon()">
+            CADASTRAR PREGOEIRO
+          </button>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <input type="text" id="pesquisaDivcon" placeholder="PESQUISAR SEI, ÓRGÃO, MODALIDADE, STATUS..." />
+      </div>
+
+      <div class="tabela">
+        <table>
+          <thead id="cabecalhoTabelaCec">
+            <tr>
+              <th class="coluna-check">
+                <input type="checkbox" id="selecionarTodosDivcon" />
+              </th>
+              <th class="coluna-sei">NR. SEI</th>
+              <th>NR. COMPRAS</th>
+              <th>ÓRGÃO</th>
+              <th>MODALIDADE</th>
+              <th>NR. PREGÃO</th>
+              <th>RESPONSÁVEL MINUTA</th>
+              <th>STATUS CEC</th>
+              <th id="colunaDataPainelCec">DATA RECEBIMENTO</th>
+              <th>AÇÃO</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaDivcon"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="modal-divcon">
+    <div class="modal-conteudo modal-edicao-divcon-conteudo">
+      <div class="modal-topo">
+        <h2 id="tituloModalDivcon">ATUALIZAR PROCESSO NA CEC</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalDivcon()">×</button>
+      </div>
+
+      <form id="formDivcon">
+        <input type="hidden" id="indiceDivcon" />
+
+        <div class="grid-resumo grid-resumo-edicao-divcon">
+          <div class="resumo-item"><span>NR. SEI</span><strong id="resumoNumeroCi"></strong></div>
+          <div class="resumo-item"><span>ÓRGÃO</span><strong id="resumoOrgao"></strong></div>
+          <div class="resumo-item"><span>MODALIDADE</span><strong id="resumoModalidade"></strong></div>
+          <div class="resumo-item"><span>NR. PREGÃO</span><strong id="resumoPregao"></strong></div>
+          <div class="resumo-item"><span>VALOR ESTIMADO</span><strong id="resumoValor"></strong></div>
+          <div class="resumo-item resumo-item-total"><span>OBJETO</span><strong id="resumoObjeto"></strong></div>
+        </div>
+
+        <div class="form-grid form-grid-edicao-divcon">
+          <div class="campo-formulario">
+            <label for="dataEntradaOutrosSetoresDivcon">DATA RECEBIMENTO CEC</label>
+            <input type="date" id="dataEntradaOutrosSetoresDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataSaidaCec">DATA SAÍDA</label>
+            <input type="date" id="dataSaidaCec" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="setorResponsavelDivcon">SETOR</label>
+            <input type="text" id="setorResponsavelDivcon" class="entrada-maiuscula" value="CEC" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="responsavelCec">RESPONSÁVEL</label>
+            <div class="select-estilizado">
+              <select id="responsavelCec">
+                <option value="">SELECIONE O PREGOEIRO</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataInicialDivcon">RETIRADA INICIAL</label>
+            <input type="date" id="dataInicialDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataFinalDivcon">DATA FINAL</label>
+            <input type="date" id="dataFinalDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="aberturaPregaoDivcon">DATA DE ABERTURA</label>
+            <input type="date" id="aberturaPregaoDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="horaAberturaDivcon">HORA</label>
+            <input type="time" id="horaAberturaDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="quantidadeItensDivcon">QUANTIDADE DE ITENS</label>
+            <input type="number" id="quantidadeItensDivcon" min="0" step="1" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="possuiLoteDivcon">LOTE</label>
+            <div class="select-estilizado">
+              <select id="possuiLoteDivcon">
+                <option value="NAO">NÃO</option>
+                <option value="SIM">SIM</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario" id="campoQuantidadeLotesDivcon">
+            <label for="quantidadeLotesDivcon">QUANTIDADE DE LOTES</label>
+            <input type="number" id="quantidadeLotesDivcon" min="0" step="1" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="itensLoteDivcon">ITENS / LOTE</label>
+            <input type="text" id="itensLoteDivcon" class="entrada-maiuscula" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorDesertoFracassadoDivcon">VALOR DESERTO/FRACASSADO</label>
+            <input type="text" id="valorDesertoFracassadoDivcon" placeholder="R$ 0,00" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorEstimadoAtualizadoDivcon">ESTIMADO (ATUALIZADO)</label>
+            <input type="text" id="valorEstimadoAtualizadoDivcon" placeholder="R$ 0,00" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorAdjudicadoDivcon">VALOR ADJUDICADO</label>
+            <input type="text" id="valorAdjudicadoDivcon" placeholder="R$ 0,00" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="seiPlanilhaComparativaDivcon">NÚMERO DA PLANILHA COMPARATIVA NO SEI</label>
+            <input type="text" id="seiPlanilhaComparativaDivcon" class="entrada-maiuscula" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="statusProcessoDivcon">STATUS</label>
+            <div class="select-estilizado">
+              <select id="statusProcessoDivcon">
+                <option value="">SELECIONE</option>
+                <option value="ABERTO">ABERTO</option>
+                <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                <option value="AGUARDANDO ABERTURA">AGUARDANDO ABERTURA</option>
+                <option value="AGUARDANDO REABERTURA">AGUARDANDO REABERTURA</option>
+                <option value="ALERTA LICON">ALERTA LICON</option>
+                <option value="ANULADO">ANULADO</option>
+                <option value="CANCELADO">CANCELADO</option>
+                <option value="DESERTO">DESERTO</option>
+                <option value="FINALIZADO">FINALIZADO</option>
+                <option value="FRACASSADO">FRACASSADO</option>
+                <option value="RECURSO">RECURSO</option>
+                <option value="REVOGADO">REVOGADO</option>
+                <option value="SUSPENSO/QUEST/IMPUG">SUSPENSO/QUEST/IMPUG</option>
+                <option value="PUBLICAR LICON">PUBLICAR LICON</option>
+                <option value="SUSPENSO">SUSPENSO</option>
+                <option value="SUSPENSO PARA PARECER">SUSPENSO PARA PARECER</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario campo-recurso-cec oculto">
+            <label for="dataFinalRecursoCec">DATA FINAL RECURSO</label>
+            <input type="date" id="dataFinalRecursoCec" />
+          </div>
+
+          <div class="campo-formulario campo-recurso-cec oculto">
+            <label for="dataFinalContrarrazaoCec">DATA FINAL CONTRARRAZÃO</label>
+            <input type="date" id="dataFinalContrarrazaoCec" />
+          </div>
+
+          <div class="campo-formulario campo-recurso-cec oculto">
+            <label for="dataDecisaoCec">DATA PARA DECISÃO</label>
+            <input type="date" id="dataDecisaoCec" />
+          </div>
+
+          <div class="campo-formulario campo-formulario-total">
+            <label for="andamentoDetalhadoDivcon">ANDAMENTO</label>
+            <textarea id="andamentoDetalhadoDivcon" class="entrada-maiuscula" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="acoes-modal acoes-modal-divcon">
+          <button type="button" class="btn-modal-divcon btn-modal-secundario" onclick="fecharModalDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-modal-divcon btn-modal-primario">SALVAR NA CEC</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-visualizar-divcon">
+    <div class="modal-conteudo modal-visualizar-divcon-conteudo">
+      <div class="modal-topo">
+        <h2>DETALHES DO PROCESSO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharVisualizacaoDivcon()">×</button>
+      </div>
+
+      <div class="visualizacao-divcon-cabecalho" id="cabecalhoVisualizacaoDivcon"></div>
+      <div class="visualizacao-divcon-corpo" id="gradeDetalhesDivcon"></div>
+
+      <div class="acoes-modal">
+        <button type="button" class="btn-topo" onclick="fecharVisualizacaoDivcon()">FECHAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-enviar-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>ENVIAR PROCESSO(S)</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalEnvioDivcon()">×</button>
+      </div>
+
+      <form id="formEnviarDivcon">
+        <div class="bloco-selecionados">
+          <p class="detalhe-label-divcon">PROCESSOS SELECIONADOS</p>
+          <div id="listaEnvioDivcon" class="lista-envio-divcon"></div>
+        </div>
+
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="setorDestinoDivcon">SELECIONAR SETOR DE DESTINO</label>
+          <div class="select-estilizado">
+            <select id="setorDestinoDivcon" required>
+              <option value="">SELECIONE</option>
+              <option value="CEC">CEC</option>
+              <option value="CEC">CEC</option>
+              <option value="DIVACP">DIVACP</option>
+            </select>
+            <span class="select-estilizado-icone" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalEnvioDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-enviar-divcon">ENVIAR PROCESSO(S)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-responsavel-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR RESPONSÁVEL</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalResponsavelDivcon()">×</button>
+      </div>
+
+      <form id="formResponsavelDivcon">
+        <div class="form-grid campo-envio-divcon">
+          <div class="campo-formulario">
+            <label for="responsavelRapidoDivcon">NOME DO RESPONSÁVEL</label>
+            <input type="text" id="responsavelRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO RESPONSÁVEL" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label>FUNÇÕES AUTORIZADAS</label>
+            <div class="responsabilidades-cadastro">
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoMinutaDivcon" />
+                <span>RESPONSÁVEL PELA MINUTA/EDITAL</span>
+              </label>
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoPublicacaoDivcon" />
+                <span>RESPONSÁVEL PELA PUBLICAÇÃO</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">RESPONSÁVEIS CADASTRADOS</p>
+          <div id="listaResponsaveisCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalResponsavelDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR RESPONSÁVEL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-pregoeiro-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR PREGOEIRO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalPregoeiroDivcon()">×</button>
+      </div>
+
+      <form id="formPregoeiroDivcon">
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="pregoeiroRapidoDivcon">NOME DO PREGOEIRO</label>
+          <input type="text" id="pregoeiroRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO PREGOEIRO" required />
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">PREGOEIROS CADASTRADOS</p>
+          <div id="listaPregoeirosCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalPregoeiroDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR PREGOEIRO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastDivcon" class="toast"></div>
+  </template>
+
+  <template id="tpl-dipreg">
+<div class="container">
+    <section class="hero">
+      <div>
+        <span class="hero-tag">SETOR VINCULADO AO DIVCON</span>
+        <h1>PAINEL DE RECEBIMENTO - DIPREG</h1>
+        <p>
+          PROCESSOS ENVIADOS PELO DIVCON COM EDIÇÃO COMPARTILHADA E ATUALIZAÇÃO AUTOMÁTICA ENTRE OS SETORES.
+        </p>
+      </div>
+
+      <div class="hero-controles">
+        <div class="notificacao-box">
+          <button
+            type="button"
+            class="btn-notificacao"
+            id="btnNotificacaoDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuNotificacaoDivcon"
+          >
+            <span class="icone-sino" aria-hidden="true"></span>
+            <span class="badge-notificacao" id="badgeNotificacaoDivcon">0</span>
+          </button>
+
+          <div class="menu-notificacao" id="menuNotificacaoDivcon" role="menu" aria-labelledby="btnNotificacaoDivcon">
+            <div class="menu-notificacao-topo">
+              <strong>NOTIFICAÇÕES</strong>
+              <button type="button" class="btn-limpar-notificacao" id="btnLerNotificacoes">
+                MARCAR COMO LIDAS
+              </button>
+            </div>
+            <div id="listaNotificacoesDivcon" class="lista-notificacoes"></div>
+          </div>
+        </div>
+
+        <div class="perfil-box-divcon">
+          <button
+            type="button"
+            class="btn-perfil"
+            id="btnPerfilDivcon"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="menuPerfilDivcon"
+          >
+            <span class="icone-perfil" aria-hidden="true">
+              <span class="icone-perfil-cabeca"></span>
+              <span class="icone-perfil-corpo"></span>
+            </span>
+            <span class="btn-perfil-texto">
+              <strong>PERFIL</strong>
+              <small>DIPREG</small>
+            </span>
+            <span class="btn-perfil-seta" aria-hidden="true"></span>
+          </button>
+
+          <div class="menu-perfil" id="menuPerfilDivcon" role="menu" aria-labelledby="btnPerfilDivcon">
+            <div class="menu-perfil-cabecalho">
+              <span class="menu-perfil-legenda">ACESSO ATUAL</span>
+              <strong>SETOR DIPREG</strong>
+              <small>FLUXO DE MINUTA E PUBLICAÇÃO</small>
+            </div>
+            <button type="button" class="menu-perfil-item menu-perfil-item-destaque" role="menuitem" onclick="executarAcaoPerfilDivcon('sair')">
+              SAIR
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <span>RECEBIDOS</span>
+        <strong id="cardRecebidos">0</strong>
+      </article>
+      <article class="card">
+        <span>EM TRATAMENTO</span>
+        <strong id="cardTratamento">0</strong>
+      </article>
+      <article class="card">
+        <span>AGUARDANDO ABERTURA</span>
+        <strong id="cardAguardandoAbertura">0</strong>
+      </article>
+      <article class="card card-suspenso-quest">
+        <span>SUSPENSO QUEST IMPUG</span>
+        <strong id="cardSuspensoQuest">0</strong>
+      </article>
+      <article class="card card-suspenso-parecer">
+        <span>SUSPENSO PARA PARECER</span>
+        <strong id="cardSuspensoParecer">0</strong>
+      </article>
+      <article class="card card-revogado">
+        <span>REVOGADO</span>
+        <strong id="cardRevogado">0</strong>
+      </article>
+      <article class="card card-recurso">
+        <span>RECURSO</span>
+        <strong id="cardRecurso">0</strong>
+      </article>
+      <article class="card card-finalizados">
+        <span>FINALIZADOS</span>
+        <strong id="cardFinalizados">0</strong>
+      </article>
+    </section>
+
+    <section class="painel">
+      <div class="painel-topo">
+        <div>
+          <div class="filtros-divcon">
+            <button type="button" class="btn-filtro-recebidos filtro-nav ativo" id="btnRecebidosDivcon" onclick="selecionarPainelDivcon('recebidos', this)">
+              RECEBIDOS
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAndamentoDivcon" onclick="selecionarPainelDivcon('andamento', this)">
+              ANDAMENTO
+            </button>
+            <button type="button" class="btn-filtro-recebidos filtro-nav" id="btnAgendaDivcon" onclick="selecionarPainelDivcon('agenda', this)">
+              AGENDA
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-suspenso-quest filtro-nav" id="btnStatusSuspensoQuestDivcon" onclick="filtrarStatusAndamento('SUSPENSO QUEST IMPUG', this)">
+              SUSPENSO QUEST IMPUG
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-suspenso-parecer filtro-nav" id="btnStatusSuspensoParecerDivcon" onclick="filtrarStatusAndamento('SUSPENSO PARA PARECER', this)">
+              SUSPENSO PARA PARECER
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-revogado filtro-nav" id="btnStatusRevogadoDivcon" onclick="filtrarStatusAndamento('REVOGADO', this)">
+              REVOGADO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-recurso filtro-nav" id="btnStatusRecursoDivcon" onclick="filtrarStatusAndamento('RECURSO', this)">
+              RECURSO
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-finalizados filtro-nav" id="btnStatusFinalizadosDivcon" onclick="filtrarStatusAndamento('FINALIZADOS', this)">
+              FINALIZADOS
+            </button>
+            <button type="button" class="btn-filtro-status btn-status-todos filtro-nav" id="btnStatusTodosDivcon" onclick="filtrarStatusAndamento('TODOS', this)">
+              TODOS
+            </button>
+          </div>
+          <h2>PROCESSOS RECEBIDOS PELA DIPREG</h2>
+          <p id="textoStatusPainel">SELECIONE UM PROCESSO PARA CONSULTAR OU ATUALIZAR.</p>
+        </div>
+
+        <div class="barra-acoes">
+          <button type="button" class="btn-topo" id="btnVisualizarDivcon" onclick="visualizarSelecionado()" disabled>
+            VISUALIZAR
+          </button>
+          <button type="button" class="btn-topo btn-principal" id="btnEditarDivcon" onclick="editarSelecionado()" disabled>
+            EDITAR
+          </button>
+          <button type="button" class="btn-topo btn-enviar-divcon" id="btnEnviarDivcon" onclick="acaoEnviarSelecionadosDivcon()" disabled>
+            ENVIAR
+          </button>
+          <button type="button" class="btn-topo btn-cadastros-divcon" onclick="abrirModalPregoeiroDivcon()">
+            CADASTRAR PREGOEIRO
+          </button>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <input type="text" id="pesquisaDivcon" placeholder="PESQUISAR SEI, ÓRGÃO, MODALIDADE, STATUS..." />
+      </div>
+
+      <div class="tabela">
+        <table>
+          <thead id="cabecalhoTabelaDipreg">
+            <tr>
+              <th class="coluna-check">
+                <input type="checkbox" id="selecionarTodosDivcon" />
+              </th>
+              <th class="coluna-sei">NR. SEI</th>
+              <th>NR. COMPRAS</th>
+              <th>ÓRGÃO</th>
+              <th>MODALIDADE</th>
+              <th>NR. PREGÃO</th>
+              <th>RESPONSÁVEL MINUTA</th>
+              <th>STATUS DIPREG</th>
+              <th id="colunaDataPainelDipreg">DATA RECEBIMENTO</th>
+              <th>AÇÃO</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaDivcon"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="modal-divcon">
+    <div class="modal-conteudo modal-edicao-divcon-conteudo">
+      <div class="modal-topo">
+        <h2 id="tituloModalDivcon">ATUALIZAR PROCESSO NA DIPREG</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalDivcon()">×</button>
+      </div>
+
+      <form id="formDivcon">
+        <input type="hidden" id="indiceDivcon" />
+
+        <div class="grid-resumo grid-resumo-edicao-divcon">
+          <div class="resumo-item"><span>NR. SEI</span><strong id="resumoNumeroCi"></strong></div>
+          <div class="resumo-item"><span>ÓRGÃO</span><strong id="resumoOrgao"></strong></div>
+          <div class="resumo-item"><span>MODALIDADE</span><strong id="resumoModalidade"></strong></div>
+          <div class="resumo-item"><span>NR. PREGÃO</span><strong id="resumoPregao"></strong></div>
+          <div class="resumo-item"><span>VALOR ESTIMADO</span><strong id="resumoValor"></strong></div>
+          <div class="resumo-item resumo-item-total"><span>OBJETO</span><strong id="resumoObjeto"></strong></div>
+        </div>
+
+        <div class="form-grid form-grid-edicao-divcon">
+          <div class="campo-formulario">
+            <label for="dataEntradaOutrosSetoresDivcon">DATA RECEBIMENTO DIPREG</label>
+            <input type="date" id="dataEntradaOutrosSetoresDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataSaidaDipreg">DATA SAÍDA</label>
+            <input type="date" id="dataSaidaDipreg" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="setorResponsavelDivcon">SETOR</label>
+            <input type="text" id="setorResponsavelDivcon" class="entrada-maiuscula" value="DIPREG" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="responsavelDipreg">RESPONSÁVEL</label>
+            <div class="select-estilizado">
+              <select id="responsavelDipreg">
+                <option value="">SELECIONE O PREGOEIRO</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataInicialDivcon">RETIRADA INICIAL</label>
+            <input type="date" id="dataInicialDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="dataFinalDivcon">DATA FINAL</label>
+            <input type="date" id="dataFinalDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="aberturaPregaoDivcon">DATA DE ABERTURA</label>
+            <input type="date" id="aberturaPregaoDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="horaAberturaDivcon">HORA</label>
+            <input type="time" id="horaAberturaDivcon" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="quantidadeItensDivcon">QUANTIDADE DE ITENS</label>
+            <input type="number" id="quantidadeItensDivcon" min="0" step="1" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="possuiLoteDivcon">LOTE</label>
+            <div class="select-estilizado">
+              <select id="possuiLoteDivcon">
+                <option value="NAO">NÃO</option>
+                <option value="SIM">SIM</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario" id="campoQuantidadeLotesDivcon">
+            <label for="quantidadeLotesDivcon">QUANTIDADE DE LOTES</label>
+            <input type="number" id="quantidadeLotesDivcon" min="0" step="1" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="itensLoteDivcon">ITENS / LOTE</label>
+            <input type="text" id="itensLoteDivcon" class="entrada-maiuscula" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorDesertoFracassadoDivcon">VALOR DESERTO/FRACASSADO</label>
+            <input type="text" id="valorDesertoFracassadoDivcon" placeholder="R$ 0,00" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorEstimadoAtualizadoDivcon">ESTIMADO (ATUALIZADO)</label>
+            <input type="text" id="valorEstimadoAtualizadoDivcon" placeholder="R$ 0,00" readonly />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="valorAdjudicadoDivcon">VALOR ADJUDICADO</label>
+            <input type="text" id="valorAdjudicadoDivcon" placeholder="R$ 0,00" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="seiPlanilhaComparativaDivcon">NÚMERO DA PLANILHA COMPARATIVA NO SEI</label>
+            <input type="text" id="seiPlanilhaComparativaDivcon" class="entrada-maiuscula" />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="statusProcessoDivcon">STATUS</label>
+            <div class="select-estilizado">
+              <select id="statusProcessoDivcon">
+                <option value="">SELECIONE</option>
+                <option value="ABERTO">ABERTO</option>
+                <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                <option value="AGUARDANDO ABERTURA">AGUARDANDO ABERTURA</option>
+                <option value="AGUARDANDO REABERTURA">AGUARDANDO REABERTURA</option>
+                <option value="ALERTA LICON">ALERTA LICON</option>
+                <option value="ANULADO">ANULADO</option>
+                <option value="CANCELADO">CANCELADO</option>
+                <option value="DESERTO">DESERTO</option>
+                <option value="FINALIZADO">FINALIZADO</option>
+                <option value="FRACASSADO">FRACASSADO</option>
+                <option value="RECURSO">RECURSO</option>
+                <option value="REVOGADO">REVOGADO</option>
+                <option value="SUSPENSO/QUEST/IMPUG">SUSPENSO/QUEST/IMPUG</option>
+                <option value="PUBLICAR LICON">PUBLICAR LICON</option>
+                <option value="SUSPENSO">SUSPENSO</option>
+                <option value="SUSPENSO PARA PARECER">SUSPENSO PARA PARECER</option>
+              </select>
+              <span class="select-estilizado-icone" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="campo-formulario campo-recurso-dipreg oculto">
+            <label for="dataFinalRecursoDipreg">DATA FINAL RECURSO</label>
+            <input type="date" id="dataFinalRecursoDipreg" />
+          </div>
+
+          <div class="campo-formulario campo-recurso-dipreg oculto">
+            <label for="dataFinalContrarrazaoDipreg">DATA FINAL CONTRARRAZÃO</label>
+            <input type="date" id="dataFinalContrarrazaoDipreg" />
+          </div>
+
+          <div class="campo-formulario campo-recurso-dipreg oculto">
+            <label for="dataDecisaoDipreg">DATA PARA DECISÃO</label>
+            <input type="date" id="dataDecisaoDipreg" />
+          </div>
+
+          <div class="campo-formulario campo-formulario-total">
+            <label for="andamentoDetalhadoDivcon">ANDAMENTO</label>
+            <textarea id="andamentoDetalhadoDivcon" class="entrada-maiuscula" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="acoes-modal acoes-modal-divcon">
+          <button type="button" class="btn-modal-divcon btn-modal-secundario" onclick="fecharModalDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-modal-divcon btn-modal-primario">SALVAR NA DIPREG</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-visualizar-divcon">
+    <div class="modal-conteudo modal-visualizar-divcon-conteudo">
+      <div class="modal-topo">
+        <h2>DETALHES DO PROCESSO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharVisualizacaoDivcon()">×</button>
+      </div>
+
+      <div class="visualizacao-divcon-cabecalho" id="cabecalhoVisualizacaoDivcon"></div>
+      <div class="visualizacao-divcon-corpo" id="gradeDetalhesDivcon"></div>
+
+      <div class="acoes-modal">
+        <button type="button" class="btn-topo" onclick="fecharVisualizacaoDivcon()">FECHAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-enviar-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>ENVIAR PROCESSO(S)</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalEnvioDivcon()">×</button>
+      </div>
+
+      <form id="formEnviarDivcon">
+        <div class="bloco-selecionados">
+          <p class="detalhe-label-divcon">PROCESSOS SELECIONADOS</p>
+          <div id="listaEnvioDivcon" class="lista-envio-divcon"></div>
+        </div>
+
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="setorDestinoDivcon">SELECIONAR SETOR DE DESTINO</label>
+          <div class="select-estilizado">
+            <select id="setorDestinoDivcon" required>
+              <option value="">SELECIONE</option>
+              <option value="DIVCON">DIVCON</option>
+              <option value="DIVACP">DIVACP</option>
+            </select>
+            <span class="select-estilizado-icone" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalEnvioDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-enviar-divcon">ENVIAR PROCESSO(S)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-responsavel-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR RESPONSÁVEL</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalResponsavelDivcon()">×</button>
+      </div>
+
+      <form id="formResponsavelDivcon">
+        <div class="form-grid campo-envio-divcon">
+          <div class="campo-formulario">
+            <label for="responsavelRapidoDivcon">NOME DO RESPONSÁVEL</label>
+            <input type="text" id="responsavelRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO RESPONSÁVEL" required />
+          </div>
+
+          <div class="campo-formulario">
+            <label>FUNÇÕES AUTORIZADAS</label>
+            <div class="responsabilidades-cadastro">
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoMinutaDivcon" />
+                <span>RESPONSÁVEL PELA MINUTA/EDITAL</span>
+              </label>
+              <label class="opcao-responsabilidade">
+                <input type="checkbox" id="respTipoPublicacaoDivcon" />
+                <span>RESPONSÁVEL PELA PUBLICAÇÃO</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">RESPONSÁVEIS CADASTRADOS</p>
+          <div id="listaResponsaveisCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalResponsavelDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR RESPONSÁVEL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-pregoeiro-divcon">
+    <div class="modal-conteudo modal-menor-divcon">
+      <div class="modal-topo">
+        <h2>CADASTRAR PREGOEIRO</h2>
+        <button type="button" class="fechar-modal" onclick="fecharModalPregoeiroDivcon()">×</button>
+      </div>
+
+      <form id="formPregoeiroDivcon">
+        <div class="campo-formulario campo-envio-divcon">
+          <label for="pregoeiroRapidoDivcon">NOME DO PREGOEIRO</label>
+          <input type="text" id="pregoeiroRapidoDivcon" class="entrada-maiuscula" placeholder="INFORME O NOME DO PREGOEIRO" required />
+        </div>
+
+        <div class="bloco-selecionados bloco-responsaveis-cadastrados">
+          <p class="detalhe-label-divcon">PREGOEIROS CADASTRADOS</p>
+          <div id="listaPregoeirosCadastradosDivcon" class="lista-responsaveis-cadastrados"></div>
+        </div>
+
+        <div class="acoes-modal">
+          <button type="button" class="btn-topo" onclick="fecharModalPregoeiroDivcon()">CANCELAR</button>
+          <button type="submit" class="btn-topo btn-responsavel-divcon">SALVAR PREGOEIRO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastDivcon" class="toast"></div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
