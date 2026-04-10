@@ -144,7 +144,7 @@ $appJs = @"
   const APP_PAGE_TITLES = $titlesJson;
   const APP_LEGACY_PAGES = $legacyJson;
   const APP_ROUTES = ["login", "alterar-senha", "admin", "divacp", "divcon", "cpc", "cec", "dipreg"];
-  const DEFAULT_ROUTE = "divacp";
+  const DEFAULT_ROUTE = "login";
 
   function normalizeRoute(route) {
     const value = String(route || "").trim().toLowerCase();
@@ -307,8 +307,8 @@ $appJs = @"
   }
 
   function authGetRedirectForSession(sessao) {
-    if (!sessao) return getUrlForRoute(DEFAULT_ROUTE);
-    if (sessao.precisaTrocarSenha) return getUrlForRoute(DEFAULT_ROUTE);
+    if (!sessao) return getUrlForRoute("login");
+    if (sessao.precisaTrocarSenha) return getUrlForRoute("alterar-senha");
     return authGetRouteForSector(sessao.perfil === "ADMIN" ? "ADMIN" : sessao.setor);
   }
 
@@ -396,7 +396,7 @@ $appJs = @"
 
   function authLogout() {
     authClearSession();
-    redirectToRoute(DEFAULT_ROUTE, false);
+    redirectToRoute("login", false);
   }
 
   function authApproveRequest(requestId) {
@@ -556,11 +556,62 @@ $appJs = @"
   }
 
   function authProtectRoute(route) {
-    if (route === "login" || route === "alterar-senha") {
-      return DEFAULT_ROUTE;
+    const sessao = authGetSession();
+
+    if (route === "login") {
+      if (sessao) {
+        const destino = normalizeRoute(authGetRedirectForSession(sessao).split("#").pop());
+        if (destino !== route) {
+          redirectToRoute(destino, true);
+          return null;
+        }
+      }
+      return route;
     }
 
-    return normalizeRoute(route);
+    if (route === "alterar-senha") {
+      if (!sessao) {
+        redirectToRoute("login", true);
+        return null;
+      }
+
+      if (!sessao.precisaTrocarSenha) {
+        const destino = normalizeRoute(authGetRedirectForSession(sessao).split("#").pop());
+        if (destino !== route) {
+          redirectToRoute(destino, true);
+          return null;
+        }
+      }
+      return route;
+    }
+
+    if (!sessao) {
+      redirectToRoute("login", true);
+      return null;
+    }
+
+    if (sessao.precisaTrocarSenha) {
+      redirectToRoute("alterar-senha", true);
+      return null;
+    }
+
+    if (route === "admin") {
+      if (sessao.perfil !== "ADMIN") {
+        const destino = normalizeRoute(authGetRouteForSector(sessao.setor).split("#").pop());
+        redirectToRoute(destino, true);
+        return null;
+      }
+      return route;
+    }
+
+    const setorEsperado = authNormalizeText(sessao.setor);
+    const routeEsperada = normalizeRoute(AUTH_ROUTE_BY_SECTOR[setorEsperado] || "login");
+    if (sessao.perfil !== "ADMIN" && route !== routeEsperada) {
+      redirectToRoute(routeEsperada, true);
+      return null;
+    }
+
+    return route;
   }
 
   window.AuthSistema = {
