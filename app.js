@@ -96,13 +96,74 @@
     return "NOVA" + numero;
   }
 
+  function authParseSectorList(valor) {
+    if (Array.isArray(valor)) {
+      return valor.map(authNormalizeText).filter(Boolean);
+    }
+
+    if (typeof valor === "string") {
+      return valor
+        .split(/[;,|]/)
+        .map(authNormalizeText)
+        .filter(Boolean);
+    }
+
+    return [];
+  }
+
+  function authGetAccessibleSectorsFromEntity(entidade) {
+    const setores = new Set();
+
+    authParseSectorList(entidade?.setoresPermitidos).forEach((setor) => setores.add(setor));
+    authParseSectorList(entidade?.setores).forEach((setor) => setores.add(setor));
+    authParseSectorList(entidade?.setoresExtras).forEach((setor) => setores.add(setor));
+
+    const setorPrincipal = authNormalizeText(entidade?.setor);
+    if (setorPrincipal) {
+      setores.add(setorPrincipal);
+    }
+
+    const perfil = authNormalizeText(entidade?.perfil);
+    if (perfil === "ADMIN") {
+      ["ADMIN", "DIVACP", "DIVCON", "CPC", "CEC", "DIPREG"].forEach((setor) => setores.add(setor));
+    }
+
+    return Array.from(setores).filter((setor) => setor === "ADMIN" || Boolean(AUTH_ROUTE_BY_SECTOR[setor]));
+  }
+
+  function authEnhanceSession(sessao) {
+    if (!sessao) return null;
+
+    const usuarios = authReadJson(AUTH_USERS_KEY, []).map(authEnsureUserShape);
+    const usuario = usuarios.find((item) => item.id === sessao.id || authNormalizeEmail(item.email) === authNormalizeEmail(sessao.email));
+    const setoresPermitidos = authGetAccessibleSectorsFromEntity(usuario || sessao);
+    const setorAtual = setoresPermitidos.includes(authNormalizeText(sessao.setor))
+      ? authNormalizeText(sessao.setor)
+      : (setoresPermitidos[0] || "DIVACP");
+
+    const sessaoNormalizada = {
+      ...sessao,
+      setor: setorAtual,
+      perfil: setorAtual === "ADMIN" ? "ADMIN" : "SETOR",
+      setoresPermitidos
+    };
+
+    if (JSON.stringify(sessaoNormalizada) !== JSON.stringify(sessao)) {
+      authWriteJson(AUTH_SESSION_KEY, sessaoNormalizada);
+    }
+
+    return sessaoNormalizada;
+  }
+
   function authEnsureUserShape(usuario) {
+    const setoresPermitidos = authGetAccessibleSectorsFromEntity(usuario);
     return {
       ...usuario,
       nome: authNormalizeText(usuario?.nome),
       email: authNormalizeEmail(usuario?.email),
       setor: authNormalizeText(usuario?.setor),
       perfil: authNormalizeText(usuario?.perfil || (authNormalizeText(usuario?.setor) === "ADMIN" ? "ADMIN" : "SETOR")),
+      setoresPermitidos,
       senha: String(usuario?.senha || "").trim(),
       ativo: usuario?.ativo !== false,
       precisaTrocarSenha: Boolean(usuario?.precisaTrocarSenha),
@@ -150,7 +211,7 @@
   }
 
   function authGetSession() {
-    return authReadJson(AUTH_SESSION_KEY, null);
+    return authEnhanceSession(authReadJson(AUTH_SESSION_KEY, null));
   }
 
   function authSetSession(sessao) {
@@ -228,8 +289,8 @@
       return { ok: false, message: "Selecione o setor de acesso." };
     }
 
-    const setorEsperado = usuario.perfil === "ADMIN" ? "ADMIN" : usuario.setor;
-    if (setorInformado !== setorEsperado) {
+    const setoresPermitidos = authGetAccessibleSectorsFromEntity(usuario);
+    if (!setoresPermitidos.includes(setorInformado)) {
       return { ok: false, message: "Este usuario nao possui acesso ao setor informado." };
     }
 
@@ -241,8 +302,9 @@
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
-      setor: usuario.setor,
-      perfil: usuario.perfil,
+      setor: setorInformado,
+      perfil: setorInformado === "ADMIN" ? "ADMIN" : "SETOR",
+      setoresPermitidos,
       precisaTrocarSenha: Boolean(usuario.precisaTrocarSenha),
       entrouEm: new Date().toISOString()
     };
@@ -400,7 +462,33 @@
 
     usuario.setor = authNormalizeText(setor);
     usuario.perfil = usuario.setor === "ADMIN" ? "ADMIN" : "SETOR";
+    usuario.setoresPermitidos = [usuario.setor];
     authSaveUsers(usuarios);
+    return { ok: true };
+  }
+
+  function authSwitchSector(setorDestino) {
+    const sessao = authGetSession();
+    if (!sessao) {
+      return { ok: false, message: "Sessao nao encontrada." };
+    }
+
+    const setor = authNormalizeText(setorDestino);
+    const setoresPermitidos = authGetAccessibleSectorsFromEntity(sessao);
+
+    if (!setoresPermitidos.includes(setor)) {
+      return { ok: false, message: "Este perfil nao possui acesso ao setor informado." };
+    }
+
+    const novaSessao = {
+      ...sessao,
+      setor,
+      perfil: setor === "ADMIN" ? "ADMIN" : "SETOR",
+      setoresPermitidos
+    };
+
+    authSetSession(novaSessao);
+    redirectToRoute(AUTH_ROUTE_BY_SECTOR[setor] || "login", false);
     return { ok: true };
   }
 
@@ -456,7 +544,8 @@
     }
 
     if (route === "admin") {
-      if (sessao.perfil !== "ADMIN") {
+      const setoresPermitidos = authGetAccessibleSectorsFromEntity(sessao);
+      if (!setoresPermitidos.includes("ADMIN")) {
         const destino = normalizeRoute(authGetRouteForSector(sessao.setor).split("#").pop());
         redirectToRoute(destino, true);
         return null;
@@ -464,9 +553,26 @@
       return route;
     }
 
-    const setorEsperado = authNormalizeText(sessao.setor);
-    const routeEsperada = normalizeRoute(AUTH_ROUTE_BY_SECTOR[setorEsperado] || "login");
-    if (sessao.perfil !== "ADMIN" && route !== routeEsperada) {
+    const rotaSetor = Object.entries(AUTH_ROUTE_BY_SECTOR).find(([, rota]) => rota === route);
+    const setorDaRota = rotaSetor ? rotaSetor[0] : null;
+    const setoresPermitidos = authGetAccessibleSectorsFromEntity(sessao);
+    if (setorDaRota && !setoresPermitidos.includes(setorDaRota)) {
+      const destino = normalizeRoute(authGetRouteForSector(sessao.setor).split("#").pop());
+      redirectToRoute(destino, true);
+      return null;
+    }
+
+    if (setorDaRota && authNormalizeText(sessao.setor) !== setorDaRota) {
+      authSetSession({
+        ...sessao,
+        setor: setorDaRota,
+        perfil: setorDaRota === "ADMIN" ? "ADMIN" : "SETOR",
+        setoresPermitidos
+      });
+    }
+
+    if (!setorDaRota && route !== "login" && route !== "alterar-senha") {
+      const routeEsperada = normalizeRoute(AUTH_ROUTE_BY_SECTOR[authNormalizeText(sessao.setor)] || "login");
       redirectToRoute(routeEsperada, true);
       return null;
     }
@@ -487,8 +593,119 @@
     completePasswordChange: authCompletePasswordChange,
     toggleUserStatus: authToggleUserStatus,
     updateUserSector: authUpdateUserSector,
-    getRouteForSector: authGetRouteForSector
+    getRouteForSector: authGetRouteForSector,
+    getAccessibleSectors() {
+      const sessao = authGetSession();
+      return authGetAccessibleSectorsFromEntity(sessao);
+    },
+    switchSector: authSwitchSector
   };
+
+  const MOJIBAKE_PATTERN = /(?:Ã.|Â.|â.|ð|�)/;
+  let domRepairObserver = null;
+  let domRepairQueued = false;
+
+  function repairMojibake(valor) {
+    const texto = String(valor || "");
+    if (!MOJIBAKE_PATTERN.test(texto)) return texto;
+
+    try {
+      const bytes = Uint8Array.from(Array.from(texto).map((char) => char.charCodeAt(0) & 255));
+      const decodificado = new TextDecoder("utf-8").decode(bytes);
+      return decodificado || texto;
+    } catch (erro) {
+      return texto;
+    }
+  }
+
+  function normalizeMojibakeInDom(root = document.getElementById("app")) {
+    if (!root) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let currentNode = walker.nextNode();
+
+    while (currentNode) {
+      const corrigido = repairMojibake(currentNode.nodeValue);
+      if (corrigido !== currentNode.nodeValue) {
+        currentNode.nodeValue = corrigido;
+      }
+      currentNode = walker.nextNode();
+    }
+
+    root.querySelectorAll("*").forEach((elemento) => {
+      ["placeholder", "title", "aria-label", "value"].forEach((atributo) => {
+        if (!elemento.hasAttribute(atributo)) return;
+        const atual = elemento.getAttribute(atributo);
+        const corrigido = repairMojibake(atual);
+        if (corrigido !== atual) {
+          elemento.setAttribute(atributo, corrigido);
+        }
+      });
+    });
+  }
+
+  function decorateProfileMenus() {
+    const sessao = authGetSession();
+    if (!sessao) return;
+
+    const setores = authGetAccessibleSectorsFromEntity(sessao);
+    if (setores.length <= 1) return;
+
+    ["menuPerfil", "menuPerfilDivcon"].forEach((menuId) => {
+      const menu = document.getElementById(menuId);
+      if (!menu) return;
+
+      menu.querySelectorAll("[data-sector-switcher]").forEach((item) => item.remove());
+
+      const titulo = document.createElement("div");
+      titulo.className = "menu-perfil-cabecalho";
+      titulo.setAttribute("data-sector-switcher", "true");
+      titulo.innerHTML = '<span class="menu-perfil-legenda">TROCAR PERFIL</span>';
+      menu.appendChild(titulo);
+
+      setores.forEach((setor) => {
+        if (setor === authNormalizeText(sessao.setor)) return;
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "menu-perfil-item";
+        botao.setAttribute("data-sector-switcher", "true");
+        botao.textContent = "IR PARA " + setor;
+        botao.addEventListener("click", () => {
+          window.AuthSistema.switchSector(setor);
+        });
+        menu.appendChild(botao);
+      });
+    });
+  }
+
+  function queueDomRepair() {
+    if (domRepairQueued) return;
+    domRepairQueued = true;
+
+    requestAnimationFrame(() => {
+      domRepairQueued = false;
+      normalizeMojibakeInDom();
+      decorateProfileMenus();
+    });
+  }
+
+  function ensureDomRepairObserver() {
+    if (domRepairObserver) return;
+    const app = document.getElementById("app");
+    if (!app) return;
+
+    domRepairObserver = new MutationObserver(() => {
+      queueDomRepair();
+    });
+
+    domRepairObserver.observe(app, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["placeholder", "title", "aria-label", "value"]
+    });
+  }
 
   function renderRoute(route) {
     const templateId = APP_TEMPLATE_IDS[route];
@@ -504,6 +721,8 @@
     document.title = APP_PAGE_TITLES[route] || "Controle de Licitacao";
     app.innerHTML = template.innerHTML;
     authHydratePage();
+    ensureDomRepairObserver();
+    queueDomRepair();
 
     const codigoPagina = APP_PAGE_SCRIPTS[route];
     if (codigoPagina) {
@@ -517,6 +736,8 @@
         );
       }
     }
+
+    queueDomRepair();
   }
 
   function boot() {
